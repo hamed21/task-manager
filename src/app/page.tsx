@@ -1,7 +1,6 @@
 'use client';
 
 import Button from '@/components/Button';
-import Image from 'next/image';
 import {useState} from 'react';
 
 export default function Home() {
@@ -9,7 +8,7 @@ export default function Home() {
   return (
     <main className=''>
       <Button
-        btnType='primary'
+        btnType='success'
         onClick={() => setAdd(prevState => prevState + 1)}>
         add button
       </Button>
