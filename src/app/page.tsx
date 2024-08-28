@@ -3,8 +3,11 @@
 import Button from '@/components/Common/Button';
 import Checkbox from '@/components/Common/Checkbox';
 import RadioGroup from '@/components/Common/RadioGroup';
+import {RootState} from '@/redux/store';
+import {addTask} from '@/redux/tasksSlice';
 import {RadioButtonOptionType} from '@/types/common.type';
 import {useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 
 const x = [
   {label: 'aaa', value: 1, description: 'kakakak'},
@@ -22,10 +25,18 @@ export default function Home() {
   });
 
   console.log(item);
+  const tasks = useSelector((state: RootState) => state.tasks);
+  const dispatch = useDispatch();
+
+  console.log(tasks, 'sssssss');
 
   return (
     <main className=''>
-      <Button btnType='success' onClick={() => console.log('lslslslsl')}>
+      <Button
+        btnType='success'
+        onClick={() =>
+          dispatch(addTask({id: '1', title: '1', completed: false}))
+        }>
         asddsa
       </Button>
       <Checkbox
