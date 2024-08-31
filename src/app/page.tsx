@@ -31,7 +31,7 @@ export default function Home() {
   console.log(tasks, 'sssssss');
 
   return (
-    <main className=''>
+    <div className=''>
       <Button
         btnType='success'
         onClick={() =>
@@ -49,6 +49,54 @@ export default function Home() {
         onChange={item => setItem(item)}
         layout={'vertical'}
       />
-    </main>
+      <RadioGroup
+        options={x}
+        defaultCheckedRadio={item}
+        onChange={item => setItem(item)}
+        layout={'vertical'}
+      />
+      <RadioGroup
+        options={x}
+        defaultCheckedRadio={item}
+        onChange={item => setItem(item)}
+        layout={'vertical'}
+      />
+      <RadioGroup
+        options={x}
+        defaultCheckedRadio={item}
+        onChange={item => setItem(item)}
+        layout={'vertical'}
+      />
+      <RadioGroup
+        options={x}
+        defaultCheckedRadio={item}
+        onChange={item => setItem(item)}
+        layout={'vertical'}
+      />
+      <RadioGroup
+        options={x}
+        defaultCheckedRadio={item}
+        onChange={item => setItem(item)}
+        layout={'vertical'}
+      />
+      <RadioGroup
+        options={x}
+        defaultCheckedRadio={item}
+        onChange={item => setItem(item)}
+        layout={'vertical'}
+      />
+      <RadioGroup
+        options={x}
+        defaultCheckedRadio={item}
+        onChange={item => setItem(item)}
+        layout={'vertical'}
+      />
+      <RadioGroup
+        options={x}
+        defaultCheckedRadio={item}
+        onChange={item => setItem(item)}
+        layout={'vertical'}
+      />
+    </div>
   );
 }

@@ -44,6 +44,7 @@ const config: Config = {
           teal: '#14B8A6'
         },
         background: {
+          main: '#F5F5F7',
           normal: '#FFFFFF',
           subtle: '#E0F2FE'
         }
