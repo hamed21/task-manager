@@ -22,10 +22,20 @@ export default function RootLayout({
     <html lang='en'>
       <body className={inter.className}>
         <Providers>
-          <div className={classNames('w-full h-screen ')}>
+          <div
+            className='w-full 
+                     h-screen 
+                     bg-background-main'>
             <Header />
             <Sidebar />
-            <main className={classNames('bg-background-main ml-48 px-4 py-8')}>
+            <main
+              className='bg-background-main
+                          ml-48 
+                          px-4
+                          py-8 
+                          grid 
+                          h-[calc(100%-56px)] 
+                          overflow-y-hidden'>
               {children}
             </main>
           </div>

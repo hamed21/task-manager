@@ -2,6 +2,7 @@
 
 import Button from '@/components/Common/Button';
 import Checkbox from '@/components/Common/Checkbox';
+import Column from '@/components/Common/Column';
 import RadioGroup from '@/components/Common/RadioGroup';
 import {RootState} from '@/redux/store';
 import {addTask} from '@/redux/tasksSlice';
@@ -31,72 +32,39 @@ export default function Home() {
   console.log(tasks, 'sssssss');
 
   return (
-    <div className=''>
-      <Button
-        btnType='success'
-        onClick={() =>
-          dispatch(addTask({id: '1', title: '1', completed: false}))
-        }>
-        asddsa
-      </Button>
-      <Checkbox
-        isChecked={isChecked}
-        onChange={() => setIsChecked(!isChecked)}
-      />
-      <RadioGroup
-        options={x}
-        defaultCheckedRadio={item}
-        onChange={item => setItem(item)}
-        layout={'vertical'}
-      />
-      <RadioGroup
-        options={x}
-        defaultCheckedRadio={item}
-        onChange={item => setItem(item)}
-        layout={'vertical'}
-      />
-      <RadioGroup
-        options={x}
-        defaultCheckedRadio={item}
-        onChange={item => setItem(item)}
-        layout={'vertical'}
-      />
-      <RadioGroup
-        options={x}
-        defaultCheckedRadio={item}
-        onChange={item => setItem(item)}
-        layout={'vertical'}
-      />
-      <RadioGroup
-        options={x}
-        defaultCheckedRadio={item}
-        onChange={item => setItem(item)}
-        layout={'vertical'}
-      />
-      <RadioGroup
-        options={x}
-        defaultCheckedRadio={item}
-        onChange={item => setItem(item)}
-        layout={'vertical'}
-      />
-      <RadioGroup
-        options={x}
-        defaultCheckedRadio={item}
-        onChange={item => setItem(item)}
-        layout={'vertical'}
-      />
-      <RadioGroup
-        options={x}
-        defaultCheckedRadio={item}
-        onChange={item => setItem(item)}
-        layout={'vertical'}
-      />
-      <RadioGroup
-        options={x}
-        defaultCheckedRadio={item}
-        onChange={item => setItem(item)}
-        layout={'vertical'}
-      />
+    <div className='flex gap-4'>
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      {/* <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' />
+      <Column title='todo' columnId='1' /> */}
     </div>
+    // <div className=''>
+    //   <Column title='todo' columnId='1' />
+    //   {/* <Column title='todo' columnId='1' /> */}
+    //   {/* <Column title='todo' columnId='1' />
+    //   <Column title='todo' columnId='1' />
+    //   <Column title='todo' columnId='1' />
+    //   <Column title='todo' columnId='1' />
+    //   <Column title='todo' columnId='1' />
+    //   <Column title='todo' columnId='1' />
+    //   <Column title='todo' columnId='1' /> */}
+    // </div>
   );
 }
