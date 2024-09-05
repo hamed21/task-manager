@@ -31,40 +31,5 @@ export default function Home() {
 
   console.log(tasks, 'sssssss');
 
-  return (
-    <div className='flex gap-4'>
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      {/* <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' />
-      <Column title='todo' columnId='1' /> */}
-    </div>
-    // <div className=''>
-    //   <Column title='todo' columnId='1' />
-    //   {/* <Column title='todo' columnId='1' /> */}
-    //   {/* <Column title='todo' columnId='1' />
-    //   <Column title='todo' columnId='1' />
-    //   <Column title='todo' columnId='1' />
-    //   <Column title='todo' columnId='1' />
-    //   <Column title='todo' columnId='1' />
-    //   <Column title='todo' columnId='1' />
-    //   <Column title='todo' columnId='1' /> */}
-    // </div>
-  );
+  return <div className='flex gap-4'></div>;
 }
