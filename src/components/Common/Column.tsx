@@ -1,15 +1,20 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, {ReactElement} from 'react';
 import {PlusCircleIcon, PencilSquareIcon} from '@heroicons/react/24/outline';
 import {Tooltip} from 'react-tooltip';
+import {useDroppable} from '@dnd-kit/core';
 import TaskCard from './TaskCard';
 
 interface ColumnType {
+  tasks: string[];
   columnId: string;
   title: string;
 }
 
-const Column: React.FC<ColumnType> = ({columnId, title}) => {
+const Column: React.FC<ColumnType> = ({columnId, title, tasks}) => {
+  const {isOver, setNodeRef} = useDroppable({
+    id: columnId
+  });
   return (
     <div className='bg-background-normal w-72 rounded-lg px-3 py-2 shadow-lg'>
       <div className='flex pb-2 border-b border-gray-dark justify-between mb-2'>
@@ -40,7 +45,13 @@ const Column: React.FC<ColumnType> = ({columnId, title}) => {
           </Tooltip>
         </div>
       </div>
-      <TaskCard />
+      <div
+        ref={setNodeRef}
+        style={{backgroundColor: isOver ? 'lightblue' : 'white'}}>
+        {tasks.map(task => (
+          <TaskCard key={task} taskId={task} taskTitle={task} />
+        ))}
+      </div>
     </div>
   );
 };

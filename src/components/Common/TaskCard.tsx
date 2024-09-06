@@ -1,9 +1,36 @@
 import React from 'react';
+import {useDraggable} from '@dnd-kit/core';
+import {useSortable} from '@dnd-kit/sortable';
+import {CSS} from '@dnd-kit/utilities';
 
-const TaskCard = () => {
+interface TaskCardType {
+  taskId: string;
+  taskTitle: string;
+}
+
+const TaskCard: React.FC<TaskCardType> = ({taskId, taskTitle}) => {
+  const {attributes, listeners, setNodeRef, transform, transition, isDragging} =
+    useSortable({id: taskId});
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    padding: 16,
+    marginBottom: 8,
+    backgroundColor: isDragging ? '#e2e6ea' : '#fff',
+    borderRadius: 4,
+    boxShadow: isDragging
+      ? '0 2px 8px rgba(0, 0, 0, 0.1)'
+      : '0 1px 4px rgba(0, 0, 0, 0.1)',
+    opacity: isDragging ? 0.6 : 1
+  };
   return (
-    <div className='w-full border border-gray-border rounded-lg px-3 py-2 flex flex-col'>
-      <p className='text-lg h-7 text-base-normalText'> title</p>
+    <div
+      className='w-full border border-gray-border rounded-lg px-3 py-2 flex flex-col'
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}>
+      <p className='text-lg h-7 text-base-normalText'> {taskTitle}</p>
       <p className='text-base h-6 text-base-minorText'>Hamed</p>
       <div className='flex justify-between items-center h-6 text-sm'>
         <p className='text-gray-normal'>04/03/2024</p>
