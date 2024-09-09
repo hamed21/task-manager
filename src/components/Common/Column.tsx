@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, {ReactElement} from 'react';
+import React, {ReactElement, useState} from 'react';
 import {
   PlusCircleIcon,
   PencilSquareIcon,
@@ -13,42 +13,68 @@ import {CSS} from '@dnd-kit/utilities';
 import {ColumnType, IdType} from '@/types/common.type';
 
 interface ColumnInterface {
-  tasks?: string[];
-  columnId?: string;
-  title?: string;
   column: ColumnType;
   deleteColumn: (id: IdType) => void;
+  updateColumnName: (id: IdType, title: string) => void;
 }
 
 const Column: React.FC<ColumnInterface> = ({
-  columnId,
-  title,
-  tasks,
   column,
-  deleteColumn
+  deleteColumn,
+  updateColumnName
 }) => {
-  const {isOver, setNodeRef, attributes, listeners, transform, transition} =
-    useSortable({
-      id: columnId,
-      data: {
-        type: 'Column',
-        columnId,
-        title
-      }
-    });
+  const [titleIsEditing, setTitleIsEditing] = useState(false);
+
+  const {
+    isOver,
+    setNodeRef,
+    attributes,
+    listeners,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({
+    id: column.id,
+    data: {
+      type: 'Column',
+      column
+    },
+    disabled: titleIsEditing
+  });
 
   const style = {
     transition,
     transform: CSS.Transform.toString(transform)
   };
 
+  const columnContainerClassNames = classNames(
+    'bg-background-normal w-[320px] h-full  rounded-lg px-3 py-2 shadow-lg flex flex-col',
+    {'opacity-50 border border-2 border-primary-dark': isDragging}
+  );
+
   return (
-    <div
-      className='bg-background-normal w-[320px]  rounded-lg px-3 py-2 shadow-lg flex flex-col'
-      style={style}>
+    <div ref={setNodeRef} className={columnContainerClassNames} style={style}>
       {/* Column title */}
-      <div className='h-[40px] flex pb-2 border-b border-gray-dark justify-between mb-2'>
-        <p className='text-base text-gray-normal'>{column.title}</p>
+      <div
+        className='h-[40px] flex pb-2 border-b border-gray-dark justify-between items-center mb-2  '
+        {...attributes}
+        {...listeners}>
+        {titleIsEditing ? (
+          <input
+            autoFocus
+            className='bg-base-white border border-gray-border rounded-md outline-none px-2 focus:border-primary-normal max-w-[200px] shadow shadow-primary-light'
+            value={column.title}
+            onChange={e => updateColumnName(column.id, e.target.value)}
+            onBlur={() => setTitleIsEditing(false)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                setTitleIsEditing(false);
+              }
+            }}
+          />
+        ) : (
+          <p className='text-base text-gray-normal'>{column.title}</p>
+        )}
         <div className='flex'>
           <PlusCircleIcon
             id='add-task'
@@ -63,9 +89,7 @@ const Column: React.FC<ColumnInterface> = ({
 
           <PencilSquareIcon
             id='edit-column-name'
-            onClick={() => {
-              console.log('sss');
-            }}
+            onClick={() => setTitleIsEditing(true)}
             className='size-6 text-primary-dark mx-2 cursor-pointer'
           />
           <Tooltip
