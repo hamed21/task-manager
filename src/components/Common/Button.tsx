@@ -26,7 +26,7 @@ const Button: React.FC<ButtonType> = props => {
     loading
   } = props;
 
-  const classes = `${colorClasses[btnType]} rounded-lg h-8 px-4 transition-all duration-200`;
+  const classes = `${colorClasses[btnType]} min-w-[150px] block rounded-lg h-8 px-4 transition-all duration-200`;
 
   return (
     <button

@@ -1,20 +1,29 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import Column from '../Common/Column';
 import TaskCard from '../Common/TaskCard';
-import {DndContext, DragEndEvent} from '@dnd-kit/core';
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent
+} from '@dnd-kit/core';
 import {arrayMove, SortableContext} from '@dnd-kit/sortable';
+import Button from '../Common/Button';
+import {createPortal} from 'react-dom';
+import {ColumnType, IdType} from '@/types/common.type';
 
 // Define the types for the tasks and columns
-interface ColumnsType {
-  [key: string]: string[];
-}
+// interface ColumnsType {
+//   [key: string]: string[];
+// }
 
 // Sample initial data
-const initialColumns: ColumnsType = {
-  column1: ['Task 1', 'Task 2', 'Task 3'],
-  column2: ['Task 4', 'Task 5'],
-  column3: ['Task 6', 'Task 7']
-};
+// const initialColumns: ColumnsType = {
+//   column1: ['Task 1', 'Task 2', 'Task 3'],
+//   column2: ['Task 4', 'Task 5'],
+//   column3: ['Task 6', 'Task 7'],
+//   column4: ['Task 8', 'Task 9']
+// };
 
 interface BoardType {
   workspaceId: string;
@@ -22,72 +31,172 @@ interface BoardType {
 }
 
 const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
-  const [columns, setColumns] = useState<ColumnsType>(initialColumns);
-
+  const [columns, setColumns] = useState<ColumnType[]>([]);
   console.log(columns);
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const {active, over} = event;
+  // const [activeTask, setActiveTask] = useState(null);
 
-    if (!over || active.id === over.id) {
-      return;
-    }
+  // // console.log(columns);
 
-    const activeColumn = findColumnByTask(String(active.id));
-    const overColumn = findColumnByTask(String(over.id));
+  // const columnIds = useMemo(() => Object.keys(columns), [columns]);
 
-    if (activeColumn && overColumn) {
-      if (activeColumn === overColumn) {
-        // Reordering within the same column
-        const updatedTasks = arrayMove(
-          columns[activeColumn],
-          columns[activeColumn].indexOf(String(active.id)),
-          columns[activeColumn].indexOf(String(over.id))
-        );
+  // const handleDragEnd = (event: DragEndEvent) => {
+  //   const {active, over} = event;
 
-        setColumns({
-          ...columns,
-          [activeColumn]: updatedTasks
-        });
-      } else {
-        // Moving between columns
-        const updatedActiveTasks = [...columns[activeColumn]];
-        const updatedOverTasks = [...columns[overColumn]];
+  //   if (!over || active.id === over.id) {
+  //     return;
+  //   }
 
-        updatedActiveTasks.splice(
-          updatedActiveTasks.indexOf(String(active.id)),
-          1
-        );
-        updatedOverTasks.splice(
-          updatedOverTasks.indexOf(String(over.id)),
-          0,
-          String(active.id)
-        );
+  //   const activeColumn = findColumnByTask(String(active.id));
+  //   const overColumn = findColumnByTask(String(over.id));
 
-        setColumns({
-          ...columns,
-          [activeColumn]: updatedActiveTasks,
-          [overColumn]: updatedOverTasks
-        });
-      }
-    }
+  //   // console.log({overColumn, overId: over?.Id});
+
+  //   if (activeColumn && overColumn) {
+  //     if (activeColumn === overColumn) {
+  //       // Reordering within the same column
+  //       const updatedTasks = arrayMove(
+  //         columns[activeColumn],
+  //         columns[activeColumn].indexOf(String(active.id)),
+  //         columns[activeColumn].indexOf(String(over.id))
+  //       );
+
+  //       setColumns({
+  //         ...columns,
+  //         [activeColumn]: updatedTasks
+  //       });
+  //     } else {
+  //       // Moving between columns
+  //       const updatedActiveTasks = [...columns[activeColumn]];
+  //       const updatedOverTasks = [...columns[overColumn]];
+
+  //       updatedActiveTasks.splice(
+  //         updatedActiveTasks.indexOf(String(active.id)),
+  //         1
+  //       );
+  //       updatedOverTasks.splice(
+  //         updatedOverTasks.indexOf(String(over.id)),
+  //         0,
+  //         String(active.id)
+  //       );
+
+  //       setColumns({
+  //         ...columns,
+  //         [activeColumn]: updatedActiveTasks,
+  //         [overColumn]: updatedOverTasks
+  //       });
+  //     }
+  //   }
+  // };
+
+  // const onDragEnd = (event: DragEndEvent) => {
+  //   const {active, over} = event;
+  //   if (!over) return;
+
+  //   const activeId = active.id;
+  //   const overId = over.id;
+
+  //   console.log({activeId, overId});
+  // };
+
+  // const findColumnByTask = (taskId: string): string | undefined => {
+  //   // console.log(taskId);
+
+  //   return Object.keys(columns).find(column =>
+  //     columns[column].includes(taskId)
+  //   );
+  // };
+
+  // const onDragStart = (event: DragStartEvent) => {
+  //   if (event.active.data.current?.type === 'Task') {
+  //     setActiveTask(event.active.data.current?.taskId);
+  //   }
+  // };
+
+  // console.log(activeTask);
+
+  const createNewColumn = () => {
+    const columnToAdd: ColumnType = {
+      id: generateId(),
+      title: `Column ${columns.length + 1}`
+    };
+
+    setColumns([...columns, columnToAdd]);
   };
 
-  const findColumnByTask = (taskId: string): string | undefined => {
-    return Object.keys(columns).find(column =>
-      columns[column].includes(taskId)
-    );
+  const deleteColumn = (columnId: IdType) => {
+    const filteredColumns = columns.filter(column => column.id !== columnId);
+
+    setColumns(filteredColumns);
   };
+
+  const generateId = () => {
+    return Math.floor(Math.random() * 10001);
+  };
+
   return (
-    <DndContext onDragEnd={handleDragEnd}>
-      <div className='flex gap-4'>
-        {Object.entries(columns).map(([column, tasks], index) => (
-          <SortableContext key={column} items={tasks}>
-            <Column columnId={column} title={column} tasks={tasks} />
-          </SortableContext>
-        ))}
+    // <div>
+    //   <DndContext
+    //     onDragOver={handleDragEnd}
+    //     onDragStart={onDragStart}
+    //     onDragEnd={onDragEnd}>
+    //     <div className=' flex gap-4'>
+    //       <div className='flex gap-4'>
+    //         {/* <SortableContext items={columnIds}> */}
+    //         {Object.entries(columns).map(([column, tasks], index) => (
+    //           <Column
+    //             key={column}
+    //             columnId={column}
+    //             title={column}
+    //             tasks={tasks}
+    //           />
+    //         ))}
+    //         {/* </SortableContext> */}
+    //       </div>
+    // <Button
+    //   onClick={() => {
+    //     console.log('add new column');
+    //   }}>
+    //   add column
+    // </Button>
+    //     </div>
+    //   </DndContext>
+    //   {createPortal(
+    //     <DragOverlay>
+    //       {activeTask && (
+    //         // <TaskCard taskId={activeTask} taskTitle={activeTask} />
+    //         <div>adsl;asd'asl;</div>
+    //       )}
+    //     </DragOverlay>,
+    //     document.body
+    //   )}
+    // </div>
+    <div
+      className='
+        flex 
+        min-h-full 
+        w-full 
+        items-center
+        overflow-x-auto
+        overflow-y-hidden'>
+      <div
+        className='
+          flex 
+          gap-4
+          h-full
+          p-5'>
+        <div className='flex gap-4'>
+          {columns.map(column => (
+            <Column
+              key={column.id}
+              column={column}
+              deleteColumn={deleteColumn}
+            />
+          ))}
+        </div>
+        <Button onClick={createNewColumn}>Add Column</Button>
       </div>
-    </DndContext>
+    </div>
   );
 };
 

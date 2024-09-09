@@ -30,9 +30,7 @@ export default function RootLayout({
             <Sidebar />
             <main
               className='bg-background-main
-                          ml-48 
-                          px-4
-                          py-8 
+                          ml-48
                           grid 
                           h-[calc(100%-56px)] 
                           overflow-y-hidden'>

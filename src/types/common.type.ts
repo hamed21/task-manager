@@ -3,3 +3,10 @@ export interface RadioButtonOptionType {
   value: string | number | boolean;
   description?: string;
 }
+
+export type IdType = string | number;
+
+export type ColumnType = {
+  id: IdType;
+  title: string;
+};
