@@ -1,4 +1,5 @@
 import React, {ReactElement} from 'react';
+import classNames from 'classnames';
 
 interface ButtonType {
   children: ReactElement | string;
@@ -6,6 +7,7 @@ interface ButtonType {
   btnType?: 'primary' | 'success' | 'error' | 'warning';
   loading?: boolean;
   disabled?: boolean;
+  classNames?: string;
   onClick: () => void;
 }
 
@@ -23,10 +25,11 @@ const Button: React.FC<ButtonType> = props => {
     onClick,
     disabled,
     icon,
-    loading
+    loading,
+    classNames
   } = props;
 
-  const classes = `${colorClasses[btnType]} min-w-[150px] block rounded-lg h-8 px-4 transition-all duration-200`;
+  const classes = `${colorClasses[btnType]} min-w-[150px] block rounded-lg h-8 px-4 transition-all duration-200 ${classNames}`;
 
   return (
     <button

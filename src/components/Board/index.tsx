@@ -13,7 +13,8 @@ import {
 import {arrayMove, SortableContext} from '@dnd-kit/sortable';
 import Button from '../Common/Button';
 import {createPortal} from 'react-dom';
-import {ColumnType, IdType} from '@/types/common.type';
+import {ColumnType, IdType, TaskType} from '@/types/common.type';
+import {generateId} from '@/utils/common.utils';
 
 // Define the types for the tasks and columns
 // interface ColumnsType {
@@ -35,6 +36,7 @@ interface BoardType {
 
 const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
   const [columns, setColumns] = useState<ColumnType[]>([]);
+  const [tasks, setTasks] = useState<TaskType[]>([]);
   const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
   const [activeTask, setActiveTask] = useState(null);
 
@@ -127,9 +129,7 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
     // console.log('sssss', event);
   };
 
-  console.log(activeColumn);
-
-  const createNewColumn = () => {
+  const createNewColumn = (): void => {
     const columnToAdd: ColumnType = {
       id: generateId(),
       title: `Column ${columns.length + 1}`
@@ -138,13 +138,13 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
     setColumns([...columns, columnToAdd]);
   };
 
-  const deleteColumn = (columnId: IdType) => {
+  const deleteColumn = (columnId: IdType): void => {
     const filteredColumns = columns.filter(column => column.id !== columnId);
 
     setColumns(filteredColumns);
   };
 
-  const updateColumnName = (columnId: IdType, title: string) => {
+  const updateColumnName = (columnId: IdType, title: string): void => {
     const newColumns = columns.map(column => {
       if (column.id !== columnId) return column;
       return {...column, title};
@@ -153,8 +153,20 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
     setColumns(newColumns);
   };
 
-  const generateId = () => {
-    return Math.floor(Math.random() * 10001);
+  const createTask = (columnId: IdType): void => {
+    const newTask: TaskType = {
+      id: generateId(),
+      columnId,
+      title: `Task ${tasks.length + 1}`
+    };
+
+    setTasks([...tasks, newTask]);
+  };
+
+  const deleteTask = (taskId: IdType): void => {
+    const filteredTasks = tasks.filter(task => task.id !== taskId);
+
+    setTasks(filteredTasks);
   };
 
   return (
@@ -220,6 +232,9 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
                   column={column}
                   deleteColumn={deleteColumn}
                   updateColumnName={updateColumnName}
+                  createTask={createTask}
+                  deleteTask={deleteTask}
+                  tasks={tasks.filter(task => task.columnId === column.id)}
                 />
               ))}
             </SortableContext>
@@ -233,6 +248,9 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
                 column={activeColumn}
                 deleteColumn={deleteColumn}
                 updateColumnName={updateColumnName}
+                createTask={createTask}
+                deleteTask={deleteTask}
+                tasks={tasks.filter(task => task.columnId === activeColumn.id)}
               />
             )}
           </DragOverlay>,

@@ -10,18 +10,25 @@ import {useDroppable} from '@dnd-kit/core';
 import TaskCard from './TaskCard';
 import {SortableContext, useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
-import {ColumnType, IdType} from '@/types/common.type';
+import {ColumnType, IdType, TaskType} from '@/types/common.type';
+import Button from './Button';
 
 interface ColumnInterface {
   column: ColumnType;
   deleteColumn: (id: IdType) => void;
   updateColumnName: (id: IdType, title: string) => void;
+  createTask: (columnId: IdType) => void;
+  deleteTask: (taskId: IdType) => void;
+  tasks: TaskType[];
 }
 
 const Column: React.FC<ColumnInterface> = ({
   column,
   deleteColumn,
-  updateColumnName
+  updateColumnName,
+  createTask,
+  deleteTask,
+  tasks
 }) => {
   const [titleIsEditing, setTitleIsEditing] = useState(false);
 
@@ -48,7 +55,7 @@ const Column: React.FC<ColumnInterface> = ({
   };
 
   const columnContainerClassNames = classNames(
-    'bg-background-normal w-[320px] h-full  rounded-lg px-3 py-2 shadow-lg flex flex-col',
+    'bg-background-normal w-[320px] h-full  rounded-lg  py-2 shadow-lg flex flex-col',
     {'opacity-50 border border-2 border-primary-dark': isDragging}
   );
 
@@ -56,7 +63,7 @@ const Column: React.FC<ColumnInterface> = ({
     <div ref={setNodeRef} className={columnContainerClassNames} style={style}>
       {/* Column title */}
       <div
-        className='h-[40px] flex pb-2 border-b border-gray-dark justify-between items-center mb-2  '
+        className='h-[40px] flex pb-2 border-b border-gray-dark justify-between items-center mb-2 mx-3'
         {...attributes}
         {...listeners}>
         {titleIsEditing ? (
@@ -113,17 +120,21 @@ const Column: React.FC<ColumnInterface> = ({
       </div>
       {/* column tasks container */}
       <div
-        className='flex flex-grow flex-col gap-4 overflow-x-hidden overflow-y-auto '
+        className='flex flex-grow flex-col gap-4 overflow-x-hidden overflow-y-auto px-3'
         // style={{backgroundColor: isOver ? 'lightblue' : 'red'}}
       >
-        {/* <SortableContext items={tasks}>
+        <SortableContext items={tasks}>
           {tasks.map(task => (
-            <TaskCard key={task} taskId={task} taskTitle={task} />
+            <TaskCard key={task.id} taskData={task} deleteTask={deleteTask} />
           ))}
-        </SortableContext> */}
+        </SortableContext>
       </div>
       {/* column footer */}
-      <div>footer</div>
+      <div className='w-full px-3'>
+        <Button classNames='w-full' onClick={() => createTask(column.id)}>
+          Add Task
+        </Button>
+      </div>
     </div>
   );
 };

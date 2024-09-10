@@ -1,21 +1,25 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {useDraggable} from '@dnd-kit/core';
 import {useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
+import {IdType, TaskType} from '@/types/common.type';
+import {TrashIcon} from '@heroicons/react/24/outline';
+import classNames from 'classnames';
 
 interface TaskCardType {
-  taskId: string;
-  taskTitle: string;
+  taskData: TaskType;
+  deleteTask: (taskId: IdType) => void;
 }
 
-const TaskCard: React.FC<TaskCardType> = ({taskId, taskTitle}) => {
+const TaskCard: React.FC<TaskCardType> = ({taskData, deleteTask}) => {
+  const [mouseIsOver, setMouseIsOver] = useState(false);
+
   const {attributes, listeners, setNodeRef, transform, transition, isDragging} =
     useSortable({
-      id: taskId,
+      id: taskData.id,
       data: {
         type: 'Task',
-        taskId,
-        taskTitle
+        taskData
       }
     });
   const style = {
@@ -31,6 +35,16 @@ const TaskCard: React.FC<TaskCardType> = ({taskId, taskTitle}) => {
     opacity: isDragging ? 0.6 : 1
   };
 
+  const deleteIconClassNames = classNames(
+    'size-5 text-base-normalText hover:text-error-normal cursor-pointer absolute right-3 top-5 opacity-0 scale-0 transition-all duration-200 cursor-pointer',
+    {
+      'opacity-0': !mouseIsOver,
+      'opacity-100': mouseIsOver,
+      'scale-0': !mouseIsOver,
+      'scale-100': mouseIsOver
+    }
+  );
+
   // if (isDragging) {
   //   return (
   //     <div
@@ -42,17 +56,25 @@ const TaskCard: React.FC<TaskCardType> = ({taskId, taskTitle}) => {
   // }
   return (
     <div
-      className='w-full min-h-[110px] border border-gray-border z-50 bg-base-white rounded-lg px-3 py-2 flex flex-col'
+      className='relative w-full min-h-[110px] border border-gray-border bg-base-white rounded-lg px-3 py-2 flex flex-col cursor-grab'
+      onMouseEnter={() => setMouseIsOver(true)}
+      onMouseLeave={() => setMouseIsOver(false)}
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}>
-      <p className='text-lg h-7 text-base-normalText'> {taskTitle}</p>
+      <p className='text-lg h-7 text-base-normalText'> {taskData.title}</p>
       <p className='text-base h-6 text-base-minorText'>Hamed</p>
       <div className='flex justify-between items-center h-6 text-sm'>
         <p className='text-gray-normal'>04/03/2024</p>
         <p className='text-gray-normal'>Estimate : 1d</p>
       </div>
+      <TrashIcon
+        onClick={() => {
+          deleteTask(taskData.id);
+        }}
+        className={deleteIconClassNames}
+      />
     </div>
   );
 };
