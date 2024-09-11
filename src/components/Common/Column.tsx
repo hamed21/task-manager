@@ -1,12 +1,11 @@
 import classNames from 'classnames';
-import React, {ReactElement, useState} from 'react';
+import React, {ReactElement, useMemo, useState} from 'react';
 import {
   PlusCircleIcon,
   PencilSquareIcon,
   TrashIcon
 } from '@heroicons/react/24/outline';
 import {Tooltip} from 'react-tooltip';
-import {useDroppable} from '@dnd-kit/core';
 import TaskCard from './TaskCard';
 import {SortableContext, useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
@@ -20,6 +19,7 @@ interface ColumnInterface {
   createTask: (columnId: IdType) => void;
   deleteTask: (taskId: IdType) => void;
   tasks: TaskType[];
+  updateTaskName: (taskId: IdType, title: string) => void;
 }
 
 const Column: React.FC<ColumnInterface> = ({
@@ -28,9 +28,12 @@ const Column: React.FC<ColumnInterface> = ({
   updateColumnName,
   createTask,
   deleteTask,
-  tasks
+  tasks,
+  updateTaskName
 }) => {
   const [titleIsEditing, setTitleIsEditing] = useState(false);
+
+  const taskIds = useMemo(() => tasks.map(task => task.id), [tasks]);
 
   const {
     isOver,
@@ -123,9 +126,14 @@ const Column: React.FC<ColumnInterface> = ({
         className='flex flex-grow flex-col gap-4 overflow-x-hidden overflow-y-auto px-3'
         // style={{backgroundColor: isOver ? 'lightblue' : 'red'}}
       >
-        <SortableContext items={tasks}>
+        <SortableContext items={taskIds}>
           {tasks.map(task => (
-            <TaskCard key={task.id} taskData={task} deleteTask={deleteTask} />
+            <TaskCard
+              key={task.id}
+              taskData={task}
+              deleteTask={deleteTask}
+              updateTaskName={updateTaskName}
+            />
           ))}
         </SortableContext>
       </div>

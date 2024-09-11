@@ -14,7 +14,8 @@ const config: Config = {
           white: '#FFFFFF',
           dark: '#000000',
           normalText: '#334155',
-          minorText: '#4338ca'
+          minorText: '#4338ca',
+          linkText: '#3b82f6'
         },
         primary: {
           light: '#60a5fa',

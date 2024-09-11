@@ -1,9 +1,10 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import Column from '../Common/Column';
 import TaskCard from '../Common/TaskCard';
 import {
   DndContext,
   DragEndEvent,
+  DragOverEvent,
   DragOverlay,
   DragStartEvent,
   PointerSensor,
@@ -16,19 +17,6 @@ import {createPortal} from 'react-dom';
 import {ColumnType, IdType, TaskType} from '@/types/common.type';
 import {generateId} from '@/utils/common.utils';
 
-// Define the types for the tasks and columns
-// interface ColumnsType {
-//   [key: string]: string[];
-// }
-
-// Sample initial data
-// const initialColumns: ColumnsType = {
-//   column1: ['Task 1', 'Task 2', 'Task 3'],
-//   column2: ['Task 4', 'Task 5'],
-//   column3: ['Task 6', 'Task 7'],
-//   column4: ['Task 8', 'Task 9']
-// };
-
 interface BoardType {
   workspaceId: string;
   boardId: string;
@@ -38,7 +26,8 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
   const [columns, setColumns] = useState<ColumnType[]>([]);
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
-  const [activeTask, setActiveTask] = useState(null);
+  const [activeTask, setActiveTask] = useState<TaskType | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -48,60 +37,64 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
     })
   );
 
-  // // console.log(columns);
-
   const columnIds = useMemo(() => columns.map(column => column.id), [columns]);
 
-  // const handleDragEnd = (event: DragEndEvent) => {
-  //   const {active, over} = event;
+  useEffect(() => {
+    // Check if we are in the browser environment
+    setIsClient(true);
+  }, []);
 
-  //   if (!over || active.id === over.id) {
-  //     return;
-  //   }
+  if (!isClient) {
+    // Return null or a loading state during SSR
+    return null;
+  }
 
-  //   const activeColumn = findColumnByTask(String(active.id));
-  //   const overColumn = findColumnByTask(String(over.id));
+  const onDragStart = (event: DragStartEvent) => {
+    if (event.active.data.current?.type === 'Column') {
+      setActiveColumn(event.active.data.current?.column);
+    }
+    if (event.active.data.current?.type === 'Task')
+      setActiveTask(event.active.data.current?.taskData);
+  };
 
-  //   // console.log({overColumn, overId: over?.Id});
+  const onDragOver = (event: DragOverEvent) => {
+    const {active, over} = event;
 
-  //   if (activeColumn && overColumn) {
-  //     if (activeColumn === overColumn) {
-  //       // Reordering within the same column
-  //       const updatedTasks = arrayMove(
-  //         columns[activeColumn],
-  //         columns[activeColumn].indexOf(String(active.id)),
-  //         columns[activeColumn].indexOf(String(over.id))
-  //       );
+    if (!over) return;
+    if (active.id === over.id) return;
 
-  //       setColumns({
-  //         ...columns,
-  //         [activeColumn]: updatedTasks
-  //       });
-  //     } else {
-  //       // Moving between columns
-  //       const updatedActiveTasks = [...columns[activeColumn]];
-  //       const updatedOverTasks = [...columns[overColumn]];
+    const isActiveTask = active.data.current?.type === 'Task';
+    const isOverTask = over.data.current?.type === 'Task';
 
-  //       updatedActiveTasks.splice(
-  //         updatedActiveTasks.indexOf(String(active.id)),
-  //         1
-  //       );
-  //       updatedOverTasks.splice(
-  //         updatedOverTasks.indexOf(String(over.id)),
-  //         0,
-  //         String(active.id)
-  //       );
+    if (!isActiveTask) return;
 
-  //       setColumns({
-  //         ...columns,
-  //         [activeColumn]: updatedActiveTasks,
-  //         [overColumn]: updatedOverTasks
-  //       });
-  //     }
-  //   }
-  // };
+    if (isActiveTask && isOverTask) {
+      setTasks(tasks => {
+        const activeIndex = tasks.findIndex(task => task.id === active.id);
+        const overIndex = tasks.findIndex(task => task.id === over.id);
+
+        tasks[activeIndex].columnId = tasks[overIndex].columnId;
+
+        return arrayMove(tasks, activeIndex, overIndex);
+      });
+    }
+
+    const isOverColumn = over.data.current?.type === 'Column';
+
+    if (isActiveTask && isOverColumn) {
+      setTasks(tasks => {
+        const activeIndex = tasks.findIndex(task => task.id === active.id);
+
+        tasks[activeIndex].columnId = over.id;
+        return arrayMove(tasks, activeIndex, activeIndex);
+      });
+    }
+  };
 
   const onDragEnd = (event: DragEndEvent) => {
+    setActiveColumn(null);
+    setActiveTask(null);
+
     const {active, over} = event;
     if (!over) return;
 
@@ -122,13 +115,6 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
     });
   };
 
-  const onDragStart = (event: DragStartEvent) => {
-    if (event.active.data.current?.type === 'Column') {
-      setActiveColumn(event.active.data.current?.column);
-    }
-    // console.log('sssss', event);
-  };
-
   const createNewColumn = (): void => {
     const columnToAdd: ColumnType = {
       id: generateId(),
@@ -142,6 +128,9 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
     const filteredColumns = columns.filter(column => column.id !== columnId);
 
     setColumns(filteredColumns);
+
+    const filteredTasks = tasks.filter(task => task.columnId !== columnId);
+    setTasks(filteredTasks);
   };
 
   const updateColumnName = (columnId: IdType, title: string): void => {
@@ -169,43 +158,18 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
     setTasks(filteredTasks);
   };
 
+  const updateTaskName = (taskId: IdType, title: string): void => {
+    const updatedTasks = tasks.map(task => {
+      if (task.id !== taskId) return task;
+      return {...task, title};
+    });
+
+    setTasks(updatedTasks);
+  };
+
+  console.log(activeTask);
+
   return (
-    // <div>
-    //   <DndContext
-    //     onDragOver={handleDragEnd}
-    //     onDragStart={onDragStart}
-    //     onDragEnd={onDragEnd}>
-    //     <div className=' flex gap-4'>
-    //       <div className='flex gap-4'>
-    //         {/* <SortableContext items={columnIds}> */}
-    //         {Object.entries(columns).map(([column, tasks], index) => (
-    //           <Column
-    //             key={column}
-    //             columnId={column}
-    //             title={column}
-    //             tasks={tasks}
-    //           />
-    //         ))}
-    //         {/* </SortableContext> */}
-    //       </div>
-    // <Button
-    //   onClick={() => {
-    //     console.log('add new column');
-    //   }}>
-    //   add column
-    // </Button>
-    //     </div>
-    //   </DndContext>
-    //   {createPortal(
-    //     <DragOverlay>
-    //       {activeTask && (
-    //         // <TaskCard taskId={activeTask} taskTitle={activeTask} />
-    //         <div>adsl;asd'asl;</div>
-    //       )}
-    //     </DragOverlay>,
-    //     document.body
-    //   )}
-    // </div>
     <div
       className='
         flex 
@@ -217,6 +181,7 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
       <DndContext
         sensors={sensors}
         onDragStart={onDragStart}
+        onDragOver={onDragOver}
         onDragEnd={onDragEnd}>
         <div
           className='
@@ -235,6 +200,7 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
                   createTask={createTask}
                   deleteTask={deleteTask}
                   tasks={tasks.filter(task => task.columnId === column.id)}
+                  updateTaskName={updateTaskName}
                 />
               ))}
             </SortableContext>
@@ -251,6 +217,14 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
                 createTask={createTask}
                 deleteTask={deleteTask}
                 tasks={tasks.filter(task => task.columnId === activeColumn.id)}
+                updateTaskName={updateTaskName}
+              />
+            )}
+            {activeTask && (
+              <TaskCard
+                taskData={activeTask}
+                deleteTask={deleteTask}
+                updateTaskName={updateTaskName}
               />
             )}
           </DragOverlay>,
