@@ -188,7 +188,7 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
           flex 
           gap-4
           h-full
-          p-5'>
+          py-5'>
           <div className='flex gap-4'>
             <SortableContext items={columnIds}>
               {columns.map(column => (
