@@ -25,11 +25,8 @@ export default function Home() {
     value: 3
   });
 
-  console.log(item);
   const tasks = useSelector((state: RootState) => state.tasks);
   const dispatch = useDispatch();
-
-  console.log(tasks, 'sssssss');
 
   return <div className='flex gap-4'></div>;
 }

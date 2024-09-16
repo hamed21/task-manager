@@ -167,8 +167,6 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
     setTasks(updatedTasks);
   };
 
-  console.log(activeTask);
-
   return (
     <div
       className='

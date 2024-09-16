@@ -80,8 +80,6 @@ const TaskCard: React.FC<TaskCardType> = ({
           onChange={e => updateTaskName(taskData.id, e.target.value)}
           onBlur={() => setTaskTitleIsEditing(false)}
           onKeyDown={e => {
-            console.log(e.key);
-
             if (e.key === 'Enter' || e.key === 'Escape') {
               setTaskTitleIsEditing(false);
             }

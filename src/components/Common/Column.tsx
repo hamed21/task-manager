@@ -88,9 +88,7 @@ const Column: React.FC<ColumnInterface> = ({
         <div className='flex'>
           <PlusCircleIcon
             id='add-task'
-            onClick={() => {
-              console.log('sss');
-            }}
+            onClick={() => {}}
             className='size-6 text-primary-dark  cursor-pointer'
           />
           <Tooltip anchorSelect='#add-task' place='bottom' delayShow={100}>
