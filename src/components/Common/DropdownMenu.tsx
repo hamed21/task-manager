@@ -45,7 +45,9 @@ const DropdownMenu: React.FC<DropdownMenuType> = ({
         className='w-64 mt-2 origin-top-right rounded-xl border border-gray-border bg-background-main p-1 text-sm/6 text-base-normalText transition duration-100 ease-out focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0'>
         {options.map(option => (
           <MenuItem>
-            <button className='group flex justify-between w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-background-subtle'>
+            <button
+              onClick={() => onChange(option)}
+              className='group flex justify-between w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-background-subtle'>
               <p className='block whitespace-nowrap overflow-hidden  align-middle text-ellipsis'>
                 {option.title}
               </p>
