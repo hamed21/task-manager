@@ -1,11 +1,13 @@
-import React from 'react';
+import React, {useState} from 'react';
+import Modal from '../Common/Modal';
+import Button from '../Common/Button';
 
 interface WorkspaceType {
   workspaceId: string;
 }
 
 const Workspace: React.FC<WorkspaceType> = ({workspaceId}) => {
-  return <div>Workspace</div>;
+  return <div>workspace</div>;
 };
 
 export default Workspace;

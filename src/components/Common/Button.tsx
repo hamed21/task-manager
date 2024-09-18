@@ -8,7 +8,7 @@ interface ButtonType {
   loading?: boolean;
   disabled?: boolean;
   classNames?: string;
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 const colorClasses: Record<string, string> = {
@@ -29,7 +29,7 @@ const Button: React.FC<ButtonType> = props => {
     classNames
   } = props;
 
-  const classes = `${colorClasses[btnType]} min-w-[150px] block rounded-lg h-8 px-4 transition-all duration-200 ${classNames}`;
+  const classes = `${colorClasses[btnType]}  block rounded-lg h-8 px-4 transition-all duration-200 ${classNames}`;
 
   return (
     <button

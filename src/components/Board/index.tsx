@@ -203,7 +203,9 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
               ))}
             </SortableContext>
           </div>
-          <Button onClick={createNewColumn}>Add Column</Button>
+          <Button classNames='min-w-[150px]' onClick={createNewColumn}>
+            Add Column
+          </Button>
         </div>
         {createPortal(
           <DragOverlay>
