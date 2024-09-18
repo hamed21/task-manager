@@ -4,7 +4,7 @@ import classNames from 'classnames';
 interface ButtonType {
   children: ReactElement | string;
   icon?: ReactElement | string;
-  btnType?: 'primary' | 'success' | 'error' | 'warning';
+  btnType?: 'primary' | 'success' | 'error' | 'warning' | 'primaryText';
   loading?: boolean;
   disabled?: boolean;
   classNames?: string;
@@ -15,7 +15,9 @@ const colorClasses: Record<string, string> = {
   primary: 'bg-primary-normal hover:bg-primary-dark text-white',
   success: 'bg-success-normal hover:bg-success-dark text-white',
   error: 'bg-error-normal hover:bg-error-dark text-white',
-  warning: 'bg-warning-normal hover:bg-warning-dark text-white'
+  warning: 'bg-warning-normal hover:bg-warning-dark text-white',
+  primaryText:
+    'bg-transparent text-primary-normal border-2 border-primary-normal hover:bg-background-subtle'
 };
 
 const Button: React.FC<ButtonType> = props => {
@@ -29,7 +31,7 @@ const Button: React.FC<ButtonType> = props => {
     classNames
   } = props;
 
-  const classes = `${colorClasses[btnType]}  block rounded-lg h-8 px-4 transition-all duration-200 ${classNames}`;
+  const classes = `${colorClasses[btnType]} flex items-center block rounded-lg h-8 px-4 transition-all duration-200 ${classNames}`;
 
   return (
     <button

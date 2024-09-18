@@ -4,8 +4,8 @@ import React from 'react';
 import Button from './Button';
 
 interface ModalType {
-  title: string | ReactElement;
-  children: string | ReactElement;
+  title?: string | ReactElement;
+  children?: string | ReactElement;
   open: boolean;
   onClose: () => void;
   onSave?: () => void;
