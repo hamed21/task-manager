@@ -52,6 +52,19 @@ const config: Config = {
           normal: '#FFFFFF',
           subtle: '#E0F2FE'
         }
+      },
+      keyframes: {
+        fade: {
+          from: {
+            opacity: '0'
+          },
+          to: {
+            opacity: '1'
+          }
+        }
+      },
+      animation: {
+        fade: 'fade'
       }
     }
   },
