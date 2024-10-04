@@ -24,4 +24,8 @@ export const apiSlice = createApi({
   })
 });
 
-export const {useGetTasksQuery} = apiSlice;
+export const {
+  useGetTasksQuery,
+  useAddTaskMutation,
+  useChangeTaskStatusMutation
+} = apiSlice;

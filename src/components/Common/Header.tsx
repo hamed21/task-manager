@@ -1,35 +1,34 @@
 'use client';
 
-import React, {useMemo, useState} from 'react';
-import classNames from 'classnames';
+import React, {useEffect, useMemo, useState} from 'react';
 import DropdownMenu from './DropdownMenu';
 import {DropdownMenuOptionType} from '@/types/common.type';
-import Modal from './Modal';
-
-const MOCK_WORKSPACES = [
-  {workspaceId: '1', workspaceName: 'Digi next'},
-  {workspaceId: '2', workspaceName: 'personal workspace'},
-  {workspaceId: '3', workspaceName: 'smartX'},
-  {
-    workspaceId: '4',
-    workspaceName: 'This is my personal workspace'
-  }
-];
+import {useGetAllWorkspacesQuery} from '@/services/workSpaceApi';
+import {WorkspaceType} from '@/types/workspace.type';
 
 const Header = () => {
-  const normalizedWorkspacesData = useMemo(
-    () =>
-      MOCK_WORKSPACES.map(item => ({
-        id: item.workspaceId,
-        title: item.workspaceName,
-        hasEdit: true,
-        hasDelete: true
-      })),
-    []
-  );
+  const {data: allWorkspaceData, isLoading, error} = useGetAllWorkspacesQuery();
+
+  const normalizedWorkspacesData: DropdownMenuOptionType<WorkspaceType>[] =
+    useMemo(() => {
+      if (allWorkspaceData) {
+        return allWorkspaceData?.map(item => ({
+          ...item,
+          hasEdit: true,
+          hasDelete: true
+        }));
+      }
+      return [];
+    }, [allWorkspaceData]);
 
   const [selectedWorkspace, setSelectedWorkspace] =
-    useState<DropdownMenuOptionType>(normalizedWorkspacesData[0]);
+    useState<DropdownMenuOptionType<WorkspaceType> | null>(null);
+
+  useEffect(() => {
+    if (normalizedWorkspacesData.length > 0) {
+      setSelectedWorkspace(normalizedWorkspacesData[0]);
+    }
+  }, [normalizedWorkspacesData]);
 
   return (
     <>

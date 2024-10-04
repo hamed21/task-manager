@@ -19,9 +19,7 @@ export interface TaskType {
   title: string;
 }
 
-export interface DropdownMenuOptionType {
-  id: string;
-  title: string;
+export type DropdownMenuOptionType<T> = T & {
   hasEdit: boolean;
   hasDelete: boolean;
-}
+};

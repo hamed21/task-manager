@@ -1,10 +1,13 @@
 import {configureStore} from '@reduxjs/toolkit';
-import tasksReducer from './tasksSlice';
+import {api} from '../services';
 
 const store = configureStore({
   reducer: {
-    tasks: tasksReducer
-  }
+    // tasks: tasksReducer,
+    [api.workspaceApi.reducerPath]: api.workspaceApi.reducer
+  },
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware().concat(api.workspaceApi.middleware)
 });
 
 export default store;
