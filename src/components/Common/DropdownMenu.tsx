@@ -18,18 +18,22 @@ import {
   useDeleteWorkspaceMutation,
   useEditWorkspaceMutation
 } from '@/services/workSpaceApi';
+import {useDispatch} from 'react-redux';
+import {useSelector} from 'react-redux';
+import {RootState} from '@/store';
+import {setSelectedWorkspace} from '@/store/workspaceSlice';
 
 interface DropdownMenuType {
   options: DropdownMenuOptionType<WorkspaceType>[];
-  selectedValue: DropdownMenuOptionType<WorkspaceType> | null;
-  onChange: (value: DropdownMenuOptionType<WorkspaceType>) => void;
+  selectedValue: WorkspaceType | null;
 }
 
-const DropdownMenu: React.FC<DropdownMenuType> = ({
-  options,
-  selectedValue,
-  onChange
-}) => {
+const DropdownMenu: React.FC<DropdownMenuType> = ({options, selectedValue}) => {
+  const dispatch = useDispatch();
+  const selectedWorkspace = useSelector(
+    (state: RootState) => state.workspace.value
+  );
+
   const [openDeleteWorkspaceModal, setOpenDeleteWorkspaceModal] =
     useState<boolean>(false);
   const [openEditWorkspaceModal, setOpenEditWorkspaceModal] =
@@ -170,9 +174,9 @@ const DropdownMenu: React.FC<DropdownMenuType> = ({
           anchor='bottom end'
           className='w-64 mt-2 origin-top-right rounded-xl border border-gray-border bg-background-main p-1 text-sm/6 text-base-normalText transition duration-100 ease-out focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0'>
           {options.map(option => (
-            <MenuItem>
+            <MenuItem key={option.id}>
               <button
-                onClick={() => onChange(option)}
+                onClick={() => dispatch(setSelectedWorkspace(option))}
                 className={classNames(
                   'group flex justify-between w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-background-subtle',
                   {'bg-background-subtle': selectedValue?.id === option.id}

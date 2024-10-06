@@ -5,8 +5,17 @@ import DropdownMenu from './DropdownMenu';
 import {DropdownMenuOptionType} from '@/types/common.type';
 import {useGetAllWorkspacesQuery} from '@/services/workSpaceApi';
 import {WorkspaceType} from '@/types/workspace.type';
+import {useDispatch} from 'react-redux';
+import {useSelector} from 'react-redux';
+import {RootState} from '@/store';
+import {setSelectedWorkspace} from '@/store/workspaceSlice';
 
 const Header = () => {
+  const dispatch = useDispatch();
+  const selectedWorkspace = useSelector(
+    (state: RootState) => state.workspace.value
+  );
+
   const {data: allWorkspaceData, isLoading, error} = useGetAllWorkspacesQuery();
 
   const normalizedWorkspacesData: DropdownMenuOptionType<WorkspaceType>[] =
@@ -21,12 +30,9 @@ const Header = () => {
       return [];
     }, [allWorkspaceData]);
 
-  const [selectedWorkspace, setSelectedWorkspace] =
-    useState<DropdownMenuOptionType<WorkspaceType> | null>(null);
-
   useEffect(() => {
     if (normalizedWorkspacesData.length > 0) {
-      setSelectedWorkspace(normalizedWorkspacesData[0]);
+      dispatch(setSelectedWorkspace(normalizedWorkspacesData[0]));
     }
   }, [normalizedWorkspacesData]);
 
@@ -38,7 +44,6 @@ const Header = () => {
           <DropdownMenu
             selectedValue={selectedWorkspace}
             options={normalizedWorkspacesData}
-            onChange={setSelectedWorkspace}
           />
         </div>
       </header>
