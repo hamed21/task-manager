@@ -1,16 +1,30 @@
 'use client';
 
-import Button from '@/components/Common/Button';
-import Checkbox from '@/components/Common/Checkbox';
-import Column from '@/components/Common/Column';
-import RadioGroup from '@/components/Common/RadioGroup';
+import LoadingBox from '@/components/Common/LoadingBox';
 import {useGetAllWorkspacesQuery} from '@/services/workSpaceApi';
 import {RootState} from '@/store';
-import {addTask} from '@/store/tasksSlice';
-import {RadioButtonOptionType} from '@/types/common.type';
-import {useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import {useRouter} from 'next/navigation';
+import {useEffect} from 'react';
+import {useSelector} from 'react-redux';
 
 export default function Home() {
-  return <div className='flex gap-4'>adas</div>;
+  const router = useRouter();
+
+  const selectedWorkspace = useSelector(
+    (state: RootState) => state.workspace.value
+  );
+
+  useEffect(() => {
+    if (selectedWorkspace) {
+      router.push(`/${selectedWorkspace.id}`);
+    }
+  }, [selectedWorkspace, router]);
+
+  console.log(!selectedWorkspace, 'selectedWorkspace');
+
+  return (
+    <LoadingBox loading={!selectedWorkspace}>
+      <div className='flex gap-4'></div>
+    </LoadingBox>
+  );
 }
