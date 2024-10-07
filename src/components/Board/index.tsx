@@ -16,6 +16,8 @@ import Button from '../Common/Button';
 import {createPortal} from 'react-dom';
 import {ColumnType, IdType, TaskType} from '@/types/common.type';
 import {generateId} from '@/utils/common.utils';
+import {useSelector} from 'react-redux';
+import {RootState} from '@/store';
 
 interface BoardType {
   workspaceId: string;
@@ -28,6 +30,9 @@ const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
   const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
   const [activeTask, setActiveTask] = useState<TaskType | null>(null);
   const [isClient, setIsClient] = useState(false);
+
+  // const selectedBoard = useSelector((state: RootState) => state.board.value);
+  // console.log(selectedBoard);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

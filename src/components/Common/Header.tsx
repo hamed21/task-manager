@@ -16,7 +16,7 @@ const Header = () => {
     (state: RootState) => state.workspace.value
   );
 
-  const {data: allWorkspaceData, isLoading, error} = useGetAllWorkspacesQuery();
+  const {data: allWorkspaceData} = useGetAllWorkspacesQuery();
 
   const normalizedWorkspacesData: DropdownMenuOptionType<WorkspaceType>[] =
     useMemo(() => {

@@ -2,6 +2,10 @@ import React, {useState} from 'react';
 import Modal from '../Common/Modal';
 import Button from '../Common/Button';
 import LoadingBox from '../Common/LoadingBox';
+import {useGetWorkspaceDataQuery} from '@/services/workSpaceApi';
+import {usePathname, useRouter} from 'next/navigation';
+import {useDispatch} from 'react-redux';
+import {setSelectedBoard} from '@/store/boardSlice';
 
 const WORKSPACE_MOCK_DATA = {
   id: 1,
@@ -55,14 +59,29 @@ interface WorkspaceType {
 }
 
 const Workspace: React.FC<WorkspaceType> = ({workspaceId}) => {
+  const router = useRouter();
+  const pathName = usePathname();
+  const dispatch = useDispatch();
+
+  const {
+    data: workspaceData,
+    isLoading: workspaceLoading,
+    isError,
+    refetch
+  } = useGetWorkspaceDataQuery(workspaceId);
+
   return (
-    <LoadingBox loading={false} error>
-      <div className='px-7 py-5 grid grid-cols-3 gap-4 overflow-auto'>
-        {WORKSPACE_MOCK_DATA.boards.map(board => (
+    <LoadingBox loading={workspaceLoading} reload={refetch} error={isError}>
+      <div className='px-7 py-5 grid lg:grid-cols-3 md:grid-cols-2 gap-4 overflow-auto'>
+        {workspaceData?.boards.map(board => (
           <div
             key={board.id}
+            onClick={() => {
+              dispatch(setSelectedBoard(board));
+              router.push(`${pathName}/${board.id}`);
+            }}
             className='h-48 w-full rounded-lg shadow-sm bg-background-normal cursor-pointer p-4'>
-            {board.name}
+            {board.title}
           </div>
         ))}
       </div>

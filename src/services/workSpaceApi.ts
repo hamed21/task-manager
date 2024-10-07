@@ -1,4 +1,4 @@
-import {WorkspaceType} from '@/types/workspace.type';
+import {WorkspaceDataType, WorkspaceType} from '@/types/workspace.type';
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 
 interface NewWorkspaceResult {
@@ -20,6 +20,11 @@ export const workspaceApi = createApi({
     getAllWorkspaces: builder.query<WorkspaceType[], void>({
       query: () => ({url: '/workspaces', method: 'GET'}),
       providesTags: ['workspace']
+    }),
+    getWorkspaceData: builder.query<WorkspaceDataType, string>({
+      query: id => ({
+        url: `/workspaces/${id}`
+      })
     }),
     addWorkspace: builder.mutation<NewWorkspaceResult, NewWorkspaceBody>({
       query: newWorkspace => ({
@@ -52,6 +57,7 @@ export const workspaceApi = createApi({
 
 export const {
   useGetAllWorkspacesQuery,
+  useGetWorkspaceDataQuery,
   useAddWorkspaceMutation,
   useDeleteWorkspaceMutation,
   useEditWorkspaceMutation
