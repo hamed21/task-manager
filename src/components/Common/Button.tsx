@@ -1,15 +1,15 @@
 import React, {ReactElement} from 'react';
 import classNames from 'classnames';
 
-interface ButtonType {
+type ButtonType = JSX.IntrinsicElements['button'] & {
   children: ReactElement | string;
   icon?: ReactElement | string;
   btnType?: 'primary' | 'success' | 'error' | 'warning' | 'primaryText';
   loading?: boolean;
   disabled?: boolean;
   classNames?: string;
-  onClick?: () => void;
-}
+  onClick?: React.MouseEventHandler<HTMLButtonElement> | undefined;
+};
 
 const colorClasses: Record<string, string> = {
   primary: 'bg-primary-normal hover:bg-primary-dark text-white',

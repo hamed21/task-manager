@@ -28,8 +28,23 @@ export const boardApi = createApi({
         body: newBoard
       }),
       invalidatesTags: ['boards']
+    }),
+    editBoardName: builder.mutation<
+      NewBoardResult,
+      {editedBoard: NewBoardBody; boardId: string}
+    >({
+      query: ({editedBoard, boardId}) => ({
+        url: `/boards/${boardId}`,
+        method: 'PUT',
+        body: editedBoard
+      }),
+      invalidatesTags: ['boards']
     })
   })
 });
 
-export const {useGetAllBoardsQuery, useAddNewBoardMutation} = boardApi;
+export const {
+  useGetAllBoardsQuery,
+  useAddNewBoardMutation,
+  useEditBoardNameMutation
+} = boardApi;

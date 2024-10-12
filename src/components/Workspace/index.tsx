@@ -9,15 +9,20 @@ import classNames from 'classnames';
 import {
   PlusCircleIcon,
   ClockIcon,
-  CalendarDaysIcon
+  CalendarDaysIcon,
+  PencilSquareIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 import {
   useAddNewBoardMutation,
+  useEditBoardNameMutation,
   useGetAllBoardsQuery
 } from '@/services/boardApi';
 import {useSelector} from 'react-redux';
 import {displayDate, displayTime} from '@/utils/common.utils';
 import {Input} from '@headlessui/react';
+import {RootState} from '@/store';
+import {BoardCard} from '../Common/BoardCard';
 
 interface WorkspaceType {
   workspaceId: string;
@@ -61,7 +66,7 @@ const Workspace: React.FC<WorkspaceType> = ({workspaceId}) => {
   };
 
   const boardCardClasses =
-    'h-48 w-full rounded-lg shadow-sm bg-background-normal cursor-pointer p-4 text-base-normalText flex justify-center items-center';
+    'h-48 w-full rounded-lg shadow-sm bg-background-normal cursor-pointer p-4 text-base-normalText flex justify-between items-center';
 
   return (
     <>
@@ -103,30 +108,13 @@ const Workspace: React.FC<WorkspaceType> = ({workspaceId}) => {
         reload={refetch}
         error={isError}>
         <div className='px-7 py-5 grid lg:grid-cols-3 md:grid-cols-2 gap-4 overflow-auto'>
-          {filteredBoards?.map(board => (
-            <div
-              key={board.id}
-              onClick={() => {
-                dispatch(setSelectedBoard(board));
-                router.push(`${pathName}/${board.id}`);
-              }}
-              className={classNames(boardCardClasses, 'flex-col')}>
-              <p>{board.title}</p>
-              <div className='flex justify-between mt-6 gap-7'>
-                <div className='flex text-base-normalText'>
-                  <CalendarDaysIcon className='size-6 mr-2' />
-                  <p>{displayDate(board.dateCreated)}</p>
-                </div>
-                <div className='flex text-base-normalText'>
-                  <ClockIcon className='size-6 mr-2' />
-                  <p>{displayTime(board.dateCreated)}</p>
-                </div>
-              </div>
-            </div>
-          ))}
+          {filteredBoards?.map(board => <BoardCard boardData={board} />)}
           <div
             onClick={() => setOpenAddBoardModal(true)}
-            className={classNames(boardCardClasses, ' text-base-minorText')}>
+            className={classNames(
+              boardCardClasses,
+              '!justify-center text-base-minorText'
+            )}>
             Add new board
             <PlusCircleIcon className='size-6 text-base-minorText cursor-pointer ml-3' />
           </div>
