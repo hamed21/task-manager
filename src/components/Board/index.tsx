@@ -19,12 +19,7 @@ import {generateId} from '@/utils/common.utils';
 import {useSelector} from 'react-redux';
 import {RootState} from '@/store';
 
-interface BoardType {
-  workspaceId: string;
-  boardId: string;
-}
-
-const Board: React.FC<BoardType> = ({workspaceId, boardId}) => {
+const Board: React.FC = () => {
   const [columns, setColumns] = useState<ColumnType[]>([]);
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);

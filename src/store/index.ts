@@ -7,10 +7,13 @@ const store = configureStore({
   reducer: {
     workspace: workspaceReducer,
     board: boardReducer,
-    [api.workspaceApi.reducerPath]: api.workspaceApi.reducer
+    [api.workspaceApi.reducerPath]: api.workspaceApi.reducer,
+    [api.boardApi.reducerPath]: api.boardApi.reducer
   },
   middleware: getDefaultMiddleware =>
-    getDefaultMiddleware().concat(api.workspaceApi.middleware)
+    getDefaultMiddleware()
+      .concat(api.workspaceApi.middleware)
+      .concat(api.boardApi.middleware)
 });
 
 export default store;

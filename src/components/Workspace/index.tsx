@@ -1,58 +1,23 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import Modal from '../Common/Modal';
 import Button from '../Common/Button';
 import LoadingBox from '../Common/LoadingBox';
-import {useGetWorkspaceDataQuery} from '@/services/workSpaceApi';
-import {usePathname, useRouter} from 'next/navigation';
+import {useParams, usePathname, useRouter} from 'next/navigation';
 import {useDispatch} from 'react-redux';
 import {setSelectedBoard} from '@/store/boardSlice';
-
-const WORKSPACE_MOCK_DATA = {
-  id: 1,
-  name: 'digi next',
-  boards: [
-    {
-      id: 1,
-      name: 'board 1'
-    },
-    {
-      id: 2,
-      name: 'board 2'
-    },
-    {
-      id: 3,
-      name: 'board 3'
-    },
-    {
-      id: 4,
-      name: 'board 4'
-    },
-    {
-      id: 5,
-      name: 'board 5'
-    },
-    {
-      id: 6,
-      name: 'board 6'
-    },
-    {
-      id: 7,
-      name: 'board 7'
-    },
-    {
-      id: 8,
-      name: 'board 8'
-    },
-    {
-      id: 9,
-      name: 'board 9'
-    },
-    {
-      id: 10,
-      name: 'board 10'
-    }
-  ]
-};
+import classNames from 'classnames';
+import {
+  PlusCircleIcon,
+  ClockIcon,
+  CalendarDaysIcon
+} from '@heroicons/react/24/outline';
+import {
+  useAddNewBoardMutation,
+  useGetAllBoardsQuery
+} from '@/services/boardApi';
+import {useSelector} from 'react-redux';
+import {displayDate, displayTime} from '@/utils/common.utils';
+import {Input} from '@headlessui/react';
 
 interface WorkspaceType {
   workspaceId: string;
@@ -62,30 +27,112 @@ const Workspace: React.FC<WorkspaceType> = ({workspaceId}) => {
   const router = useRouter();
   const pathName = usePathname();
   const dispatch = useDispatch();
+  const params = useParams();
+
+  const [openAddBoardModal, setOpenAddBoardModal] = useState(false);
+  const [newBoardName, setNewBoardName] = useState('');
 
   const {
-    data: workspaceData,
-    isLoading: workspaceLoading,
+    data: allboardsData,
+    isLoading: allBoardsLoading,
     isError,
     refetch
-  } = useGetWorkspaceDataQuery(workspaceId);
+  } = useGetAllBoardsQuery();
+  const [addBoard, {isLoading: addBoardIsLoading}] = useAddNewBoardMutation();
+
+  const filteredBoards = useMemo(() => {
+    if (allboardsData?.length) {
+      return allboardsData.filter(
+        board => String(board.workspace) === params.workspace
+      );
+    }
+    return [];
+  }, [allboardsData, params]);
+
+  const handleAddBoard = async () => {
+    try {
+      await addBoard({
+        title: newBoardName,
+        workspace: Number(params.workspace)
+      });
+    } catch (error) {
+      console.error('Feild to add workspace:', error);
+    }
+  };
+
+  const boardCardClasses =
+    'h-48 w-full rounded-lg shadow-sm bg-background-normal cursor-pointer p-4 text-base-normalText flex justify-center items-center';
 
   return (
-    <LoadingBox loading={workspaceLoading} reload={refetch} error={isError}>
-      <div className='px-7 py-5 grid lg:grid-cols-3 md:grid-cols-2 gap-4 overflow-auto'>
-        {workspaceData?.boards.map(board => (
+    <>
+      {/* add new modal */}
+      <Modal
+        open={openAddBoardModal}
+        onClose={() => setOpenAddBoardModal(false)}
+        title={'Add new workspace name'}
+        footer={
+          <>
+            <Button
+              btnType='primaryText'
+              onClick={() => {
+                handleAddBoard();
+                setOpenAddBoardModal(false);
+              }}
+              classNames='mr-4'>
+              Create board
+            </Button>
+            <Button btnType='error' onClick={() => setOpenAddBoardModal(false)}>
+              Cancel
+            </Button>
+          </>
+        }>
+        <Input
+          autoFocus
+          value={newBoardName}
+          onChange={(event): void => {
+            setNewBoardName(event.target.value);
+          }}
+          className={classNames(
+            'mt-3 block w-full rounded-lg border-2 bg-background-normal py-1.5 px-3 text-sm/6 text-base-normalText',
+            'focus:outline-none focus:border-primary-light focus:shadow-sm'
+          )}
+        />
+      </Modal>
+      <LoadingBox
+        loading={allBoardsLoading || addBoardIsLoading}
+        reload={refetch}
+        error={isError}>
+        <div className='px-7 py-5 grid lg:grid-cols-3 md:grid-cols-2 gap-4 overflow-auto'>
+          {filteredBoards?.map(board => (
+            <div
+              key={board.id}
+              onClick={() => {
+                dispatch(setSelectedBoard(board));
+                router.push(`${pathName}/${board.id}`);
+              }}
+              className={classNames(boardCardClasses, 'flex-col')}>
+              <p>{board.title}</p>
+              <div className='flex justify-between mt-6 gap-7'>
+                <div className='flex text-base-normalText'>
+                  <CalendarDaysIcon className='size-6 mr-2' />
+                  <p>{displayDate(board.dateCreated)}</p>
+                </div>
+                <div className='flex text-base-normalText'>
+                  <ClockIcon className='size-6 mr-2' />
+                  <p>{displayTime(board.dateCreated)}</p>
+                </div>
+              </div>
+            </div>
+          ))}
           <div
-            key={board.id}
-            onClick={() => {
-              dispatch(setSelectedBoard(board));
-              router.push(`${pathName}/${board.id}`);
-            }}
-            className='h-48 w-full rounded-lg shadow-sm bg-background-normal cursor-pointer p-4'>
-            {board.title}
+            onClick={() => setOpenAddBoardModal(true)}
+            className={classNames(boardCardClasses, ' text-base-minorText')}>
+            Add new board
+            <PlusCircleIcon className='size-6 text-base-minorText cursor-pointer ml-3' />
           </div>
-        ))}
-      </div>
-    </LoadingBox>
+        </div>
+      </LoadingBox>
+    </>
   );
 };
 
