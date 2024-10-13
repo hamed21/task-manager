@@ -8,11 +8,6 @@ export interface RadioButtonOptionType {
 
 export type IdType = string | number;
 
-export interface ColumnType {
-  id: IdType;
-  title: string;
-}
-
 export interface TaskType {
   id: IdType;
   columnId: IdType;

@@ -8,8 +8,8 @@ import classNames from 'classnames';
 
 interface TaskCardType {
   taskData: TaskType;
-  deleteTask: (taskId: IdType) => void;
-  updateTaskName: (taskId: IdType, title: string) => void;
+  deleteTask?: (taskId: IdType) => void;
+  updateTaskName?: (taskId: IdType, title: string) => void;
 }
 
 const TaskCard: React.FC<TaskCardType> = ({
@@ -77,7 +77,7 @@ const TaskCard: React.FC<TaskCardType> = ({
           autoFocus
           className='h-[28px] bg-base-white cursor-gra border border-gray-border rounded-md outline-none px-2 focus:border-primary-normal max-w-[200px] shadow shadow-primary-light'
           value={taskData.title}
-          onChange={e => updateTaskName(taskData.id, e.target.value)}
+          // onChange={e => updateTaskName(taskData.id, e.target.value)}
           onBlur={() => setTaskTitleIsEditing(false)}
           onKeyDown={e => {
             if (e.key === 'Enter' || e.key === 'Escape') {
@@ -99,7 +99,7 @@ const TaskCard: React.FC<TaskCardType> = ({
       </div>
       <TrashIcon
         onClick={() => {
-          deleteTask(taskData.id);
+          // deleteTask(taskData.id);
         }}
         className={deleteIconClassNames}
       />

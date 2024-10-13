@@ -14,18 +14,39 @@ import {
 import {arrayMove, SortableContext} from '@dnd-kit/sortable';
 import Button from '../Common/Button';
 import {createPortal} from 'react-dom';
-import {ColumnType, IdType, TaskType} from '@/types/common.type';
+import {IdType, TaskType} from '@/types/common.type';
 import {generateId} from '@/utils/common.utils';
+import {
+  useGetBoardDataQuery,
+  useUpdateColumnsOrderMutation
+} from '@/services/boardApi';
+import {useParams} from 'next/navigation';
+import {useDispatch} from 'react-redux';
+import {setSelectedBoard} from '@/store/boardSlice';
+import {PlusCircleIcon} from '@heroicons/react/24/outline';
+import {AddColumnModal} from './AddColumnModal';
+import {ColumnType} from '@/types/board.type';
 
 const Board: React.FC = () => {
-  const [columns, setColumns] = useState<ColumnType[]>([]);
+  const params = useParams();
+  const dispatch = useDispatch();
+
+  const [openAddColumnModal, setOpenAddColumnModal] = useState<boolean>(false);
+  const [columnToRename, setColumnToRename] = useState(null);
   const [tasks, setTasks] = useState<TaskType[]>([]);
-  const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
+  const [activeColumn, setActiveColumn] = useState<any | null>(null);
   const [activeTask, setActiveTask] = useState<TaskType | null>(null);
   const [isClient, setIsClient] = useState(false);
 
-  // const selectedBoard = useSelector((state: RootState) => state.board.value);
-  // console.log(selectedBoard);
+  const {data: boardData, isLoading: boardIsLoading} = useGetBoardDataQuery(
+    params.board as string
+  );
+
+  const [updateColumnsOrder] = useUpdateColumnsOrderMutation();
+
+  useEffect(() => {
+    boardData && dispatch(setSelectedBoard(boardData));
+  }, [boardData]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -35,7 +56,13 @@ const Board: React.FC = () => {
     })
   );
 
-  const columnIds = useMemo(() => columns.map(column => column.id), [columns]);
+  const columnIds = useMemo(() => {
+    if (boardData) {
+      return boardData?.columns.map(column => column.id);
+    } else {
+      return [];
+    }
+  }, [boardData]);
 
   useEffect(() => {
     // Check if we are in the browser environment
@@ -101,44 +128,56 @@ const Board: React.FC = () => {
 
     if (activeColumnId === overColumnId) return;
 
-    setColumns(columns => {
-      const activeColumnIndex = columns.findIndex(
-        column => column.id === activeColumnId
-      );
-      const overColumnIndex = columns.findIndex(
-        column => column.id === overColumnId
-      );
+    // setColumns(columns => {
+    //   const activeColumnIndex = columns.findIndex(
+    //     column => column.id === activeColumnId
+    //   );
+    //   const overColumnIndex = columns.findIndex(
+    //     column => column.id === overColumnId
+    //   );
 
-      return arrayMove(columns, activeColumnIndex, overColumnIndex);
+    //   return arrayMove(columns, activeColumnIndex, overColumnIndex);
+    // });
+
+    const activeColumnIndex = boardData?.columns.findIndex(
+      column => column.id === activeColumnId
+    );
+    const overColumnIndex = boardData?.columns.findIndex(
+      column => column.id === overColumnId
+    );
+
+    const updatedColumns = arrayMove(
+      boardData?.columns as ColumnType[],
+      activeColumnIndex as number,
+      overColumnIndex as number
+    ).map((column, index) => {
+      const {boardId, ...rest} = column;
+      return {...rest, position: index + 1};
+    });
+
+    updateColumnsOrder({
+      columns: updatedColumns,
+      boardId: params.board as string
     });
   };
 
-  const createNewColumn = (): void => {
-    const columnToAdd: ColumnType = {
-      id: generateId(),
-      title: `Column ${columns.length + 1}`
-    };
+  // const deleteColumn = (columnId: IdType): void => {
+  //   const filteredColumns = columns.filter(column => column.id !== columnId);
 
-    setColumns([...columns, columnToAdd]);
-  };
+  //   setColumns(filteredColumns);
 
-  const deleteColumn = (columnId: IdType): void => {
-    const filteredColumns = columns.filter(column => column.id !== columnId);
+  //   const filteredTasks = tasks.filter(task => task.columnId !== columnId);
+  //   setTasks(filteredTasks);
+  // };
 
-    setColumns(filteredColumns);
+  // const updateColumnName = (columnId: IdType, title: string): void => {
+  //   const newColumns = columns.map(column => {
+  //     if (column.id !== columnId) return column;
+  //     return {...column, title};
+  //   });
 
-    const filteredTasks = tasks.filter(task => task.columnId !== columnId);
-    setTasks(filteredTasks);
-  };
-
-  const updateColumnName = (columnId: IdType, title: string): void => {
-    const newColumns = columns.map(column => {
-      if (column.id !== columnId) return column;
-      return {...column, title};
-    });
-
-    setColumns(newColumns);
-  };
+  //   setColumns(newColumns);
+  // };
 
   const createTask = (columnId: IdType): void => {
     const newTask: TaskType = {
@@ -166,70 +205,73 @@ const Board: React.FC = () => {
   };
 
   return (
-    <div
-      className='
-        flex 
-        min-h-full 
-        w-full 
-        items-center
-        overflow-x-auto
-        overflow-y-hidden'>
-      <DndContext
-        sensors={sensors}
-        onDragStart={onDragStart}
-        onDragOver={onDragOver}
-        onDragEnd={onDragEnd}>
-        <div
-          className='
-          flex 
-          gap-4
-          h-full
-          py-5'>
-          <div className='flex gap-4'>
-            <SortableContext items={columnIds}>
-              {columns.map(column => (
+    <>
+      {/* add new column modal */}
+      <AddColumnModal
+        columnsCount={boardData?.columns.length || 0}
+        openAddColumnModal={openAddColumnModal}
+        setOpenAddColumnModal={setOpenAddColumnModal}
+      />
+      <div className='flex min-h-full w-full items-center overflow-x-auto overflow-y-hidden'>
+        <DndContext
+          sensors={sensors}
+          onDragStart={onDragStart}
+          onDragOver={onDragOver}
+          onDragEnd={onDragEnd}>
+          <div className='flex gap-4 h-full py-5'>
+            <div className='flex gap-4'>
+              <SortableContext items={columnIds}>
+                {boardData?.columns.map(column => (
+                  <Column
+                    key={column.id}
+                    column={column}
+                    columnToRename={columnToRename}
+                    setColumnToRename={setColumnToRename}
+                    createTask={createTask}
+                    // deleteTask={deleteTask}
+                    tasks={tasks.filter(task => task.columnId === column.id)}
+                    // updateTaskName={updateTaskName}
+                  />
+                ))}
+              </SortableContext>
+            </div>
+            <Button
+              classNames='min-w-[160px]'
+              onClick={() => setOpenAddColumnModal(true)}>
+              <>
+                Add Column
+                <PlusCircleIcon className='size-5 ml-2' />
+              </>
+            </Button>
+          </div>
+          {createPortal(
+            <DragOverlay>
+              {activeColumn && (
                 <Column
-                  key={column.id}
-                  column={column}
-                  deleteColumn={deleteColumn}
-                  updateColumnName={updateColumnName}
+                  column={activeColumn}
+                  columnToRename={columnToRename}
+                  setColumnToRename={setColumnToRename}
                   createTask={createTask}
+                  // deleteTask={deleteTask}
+                  tasks={tasks.filter(
+                    task => task.columnId === activeColumn.id
+                  )}
+                  // updateTaskName={updateTaskName}
+                />
+              )}
+              {activeTask && (
+                <TaskCard
+                  taskData={activeTask}
                   deleteTask={deleteTask}
-                  tasks={tasks.filter(task => task.columnId === column.id)}
                   updateTaskName={updateTaskName}
                 />
-              ))}
-            </SortableContext>
-          </div>
-          <Button classNames='min-w-[150px]' onClick={createNewColumn}>
-            Add Column
-          </Button>
-        </div>
-        {createPortal(
-          <DragOverlay>
-            {activeColumn && (
-              <Column
-                column={activeColumn}
-                deleteColumn={deleteColumn}
-                updateColumnName={updateColumnName}
-                createTask={createTask}
-                deleteTask={deleteTask}
-                tasks={tasks.filter(task => task.columnId === activeColumn.id)}
-                updateTaskName={updateTaskName}
-              />
-            )}
-            {activeTask && (
-              <TaskCard
-                taskData={activeTask}
-                deleteTask={deleteTask}
-                updateTaskName={updateTaskName}
-              />
-            )}
-          </DragOverlay>,
-          document.body
-        )}
-      </DndContext>
-    </div>
+              )}
+            </DragOverlay>,
+            document.body
+          )}
+        </DndContext>
+      </div>
+    </>
   );
 };
 

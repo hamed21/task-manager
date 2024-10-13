@@ -15,6 +15,7 @@ const Header = () => {
   const selectedWorkspace = useSelector(
     (state: RootState) => state.workspace.value
   );
+  const selectedBoard = useSelector((state: RootState) => state.board.value);
 
   const {data: allWorkspaceData} = useGetAllWorkspacesQuery();
 
@@ -40,7 +41,7 @@ const Header = () => {
     <>
       <header className='flex items-center  h-14 w-full bg-background-normal  pl-48'>
         <div className='w-full h-full px-7 flex justify-between items-center'>
-          board name
+          {selectedBoard?.title || '-'}
           <DropdownMenu
             selectedValue={selectedWorkspace}
             options={normalizedWorkspacesData}

@@ -3,35 +3,43 @@ import React, {ReactElement, useMemo, useState} from 'react';
 import {
   PlusCircleIcon,
   PencilSquareIcon,
-  TrashIcon
+  TrashIcon,
+  CheckIcon
 } from '@heroicons/react/24/outline';
 import {Tooltip} from 'react-tooltip';
 import TaskCard from './TaskCard';
 import {SortableContext, useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
-import {ColumnType, IdType, TaskType} from '@/types/common.type';
+import {IdType, TaskType} from '@/types/common.type';
 import Button from './Button';
+import {ColumnType} from '@/types/board.type';
+import {
+  useDeleteColumnMutation,
+  useEditColumnTitleMutation
+} from '@/services/boardApi';
+import {useParams} from 'next/navigation';
 
 interface ColumnInterface {
   column: ColumnType;
-  deleteColumn: (id: IdType) => void;
-  updateColumnName: (id: IdType, title: string) => void;
   createTask: (columnId: IdType) => void;
-  deleteTask: (taskId: IdType) => void;
   tasks: TaskType[];
-  updateTaskName: (taskId: IdType, title: string) => void;
+  columnToRename: number | null;
+  setColumnToRename: (value: any) => void;
 }
 
 const Column: React.FC<ColumnInterface> = ({
   column,
-  deleteColumn,
-  updateColumnName,
   createTask,
-  deleteTask,
   tasks,
-  updateTaskName
+  columnToRename,
+  setColumnToRename
 }) => {
-  const [titleIsEditing, setTitleIsEditing] = useState(false);
+  const params = useParams();
+
+  const [editColumnTitle] = useEditColumnTitleMutation();
+  const [deleteColumn] = useDeleteColumnMutation();
+
+  const [editedName, setEditedName] = useState<string>(column.title);
 
   const taskIds = useMemo(() => tasks.map(task => task.id), [tasks]);
 
@@ -49,7 +57,7 @@ const Column: React.FC<ColumnInterface> = ({
       type: 'Column',
       column
     },
-    disabled: titleIsEditing
+    disabled: !!columnToRename
   });
 
   const style = {
@@ -69,35 +77,35 @@ const Column: React.FC<ColumnInterface> = ({
         className='h-[40px] flex pb-2 border-b border-gray-dark justify-between items-center mb-2 mx-3'
         {...attributes}
         {...listeners}>
-        {titleIsEditing ? (
-          <input
-            autoFocus
-            className='bg-base-white border border-gray-border rounded-md outline-none px-2 focus:border-primary-normal max-w-[200px] shadow shadow-primary-light'
-            value={column.title}
-            onChange={e => updateColumnName(column.id, e.target.value)}
-            onBlur={() => setTitleIsEditing(false)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                setTitleIsEditing(false);
-              }
-            }}
-          />
+        {columnToRename === column.id ? (
+          <>
+            <input
+              autoFocus
+              className='bg-base-white border border-gray-border rounded-md outline-none px-2 focus:border-primary-normal max-w-[180px] h-full shadow shadow-primary-light'
+              value={editedName}
+              onChange={e => setEditedName(e.target.value)}
+            />
+            <Button
+              btnType='primary'
+              classNames='!px-2'
+              onClick={() => {
+                editColumnTitle({
+                  title: editedName,
+                  columnId: column.id,
+                  boardId: params.board as string
+                });
+                setColumnToRename(null);
+              }}>
+              <CheckIcon className='size-4' />
+            </Button>
+          </>
         ) : (
           <p className='text-base text-gray-normal'>{column.title}</p>
         )}
         <div className='flex'>
-          <PlusCircleIcon
-            id='add-task'
-            onClick={() => {}}
-            className='size-6 text-primary-dark  cursor-pointer'
-          />
-          <Tooltip anchorSelect='#add-task' place='bottom' delayShow={100}>
-            create new task
-          </Tooltip>
-
           <PencilSquareIcon
             id='edit-column-name'
-            onClick={() => setTitleIsEditing(true)}
+            onClick={() => setColumnToRename(column.id)}
             className='size-6 text-primary-dark mx-2 cursor-pointer'
           />
           <Tooltip
@@ -110,7 +118,10 @@ const Column: React.FC<ColumnInterface> = ({
           <TrashIcon
             id='delete-column'
             onClick={() => {
-              deleteColumn(column.id);
+              deleteColumn({
+                boardId: params.board as string,
+                columnId: String(column.id)
+              });
             }}
             className='size-6 text-primary-dark cursor-pointer'
           />
@@ -120,25 +131,27 @@ const Column: React.FC<ColumnInterface> = ({
         </div>
       </div>
       {/* column tasks container */}
-      <div
-        className='flex flex-grow flex-col gap-4 overflow-x-hidden overflow-y-auto px-3'
-        // style={{backgroundColor: isOver ? 'lightblue' : 'red'}}
-      >
+      <div className='flex flex-grow flex-col gap-4 overflow-x-hidden overflow-y-auto px-3'>
         <SortableContext items={taskIds}>
           {tasks.map(task => (
             <TaskCard
               key={task.id}
               taskData={task}
-              deleteTask={deleteTask}
-              updateTaskName={updateTaskName}
+              // deleteTask={deleteTask}
+              // updateTaskName={updateTaskName}
             />
           ))}
         </SortableContext>
       </div>
       {/* column footer */}
       <div className='w-full px-3'>
-        <Button classNames='w-full' onClick={() => createTask(column.id)}>
-          Add Task
+        <Button
+          classNames='w-full flex justify-center'
+          onClick={() => createTask(column.id)}>
+          <>
+            Add Task
+            <PlusCircleIcon className='size-5 ml-4' />
+          </>
         </Button>
       </div>
     </div>

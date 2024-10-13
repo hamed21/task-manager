@@ -4,24 +4,13 @@ import Button from '../Common/Button';
 import LoadingBox from '../Common/LoadingBox';
 import {useParams, usePathname, useRouter} from 'next/navigation';
 import {useDispatch} from 'react-redux';
-import {setSelectedBoard} from '@/store/boardSlice';
 import classNames from 'classnames';
-import {
-  PlusCircleIcon,
-  ClockIcon,
-  CalendarDaysIcon,
-  PencilSquareIcon,
-  TrashIcon
-} from '@heroicons/react/24/outline';
+import {PlusCircleIcon} from '@heroicons/react/24/outline';
 import {
   useAddNewBoardMutation,
-  useEditBoardNameMutation,
   useGetAllBoardsQuery
 } from '@/services/boardApi';
-import {useSelector} from 'react-redux';
-import {displayDate, displayTime} from '@/utils/common.utils';
 import {Input} from '@headlessui/react';
-import {RootState} from '@/store';
 import {BoardCard} from '../Common/BoardCard';
 
 interface WorkspaceType {

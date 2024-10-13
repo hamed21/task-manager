@@ -1,4 +1,4 @@
-import {BoardType} from '@/types/board.type';
+import {BoardDataType, BoardType, ColumnType} from '@/types/board.type';
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 
 interface NewBoardBody {
@@ -15,7 +15,7 @@ interface NewBoardResult {
 export const boardApi = createApi({
   reducerPath: 'boardApi',
   baseQuery: fetchBaseQuery({baseUrl: 'http://localhost:3000'}),
-  tagTypes: ['boards'],
+  tagTypes: ['boards', 'boardData'],
   endpoints: builder => ({
     getAllBoards: builder.query<BoardType[], void>({
       query: () => ({url: 'boards', method: 'GET'}),
@@ -46,8 +46,59 @@ export const boardApi = createApi({
         method: 'DELETE'
       }),
       invalidatesTags: ['boards']
+    }),
+    getBoardData: builder.query<BoardDataType, string>({
+      query: (boardId: string) => ({
+        url: `/boards/${boardId}`,
+        method: 'GET'
+      }),
+      providesTags: ['boardData']
+    }),
+    addNewColumn: builder.mutation<
+      ColumnType,
+      {title: string; position: number; boardId: string}
+    >({
+      query: ({title, position, boardId}) => ({
+        url: `/boards/${boardId}/column`,
+        method: 'POST',
+        body: {title, position}
+      }),
+      invalidatesTags: ['boardData']
+    }),
+    editColumnTitle: builder.mutation<
+      {message: string; columnId: number; title: string},
+      {title: string; columnId: number; boardId: string}
+    >({
+      query: ({title, columnId, boardId}) => ({
+        url: `/boards/${boardId}/column`,
+        method: 'PUT',
+        body: {title, columnId}
+      }),
+      invalidatesTags: ['boardData']
+    }),
+    deleteColumn: builder.mutation<object, {boardId: string; columnId: string}>(
+      {
+        query: ({boardId, columnId}) => ({
+          url: `/boards/${boardId}/column/${columnId}`,
+          method: 'DELETE'
+        }),
+        invalidatesTags: ['boardData']
+      }
+    ),
+    updateColumnsOrder: builder.mutation<
+      object,
+      {
+        columns: {position: number; id: number; title: string}[];
+        boardId: string;
+      }
+    >({
+      query: ({columns, boardId}) => ({
+        url: `/boards/${boardId}/columns`,
+        method: 'PUT',
+        body: {columns}
+      }),
+      invalidatesTags: ['boardData']
     })
-    // getBoardData: builder.query<>
   })
 });
 
@@ -55,5 +106,10 @@ export const {
   useGetAllBoardsQuery,
   useAddNewBoardMutation,
   useEditBoardNameMutation,
-  useDeleteBoardMutation
+  useDeleteBoardMutation,
+  useGetBoardDataQuery,
+  useAddNewColumnMutation,
+  useEditColumnTitleMutation,
+  useDeleteColumnMutation,
+  useUpdateColumnsOrderMutation
 } = boardApi;

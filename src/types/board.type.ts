@@ -5,7 +5,12 @@ export interface BoardType {
   workspace: number;
 }
 
-export type ColumnType = any;
+export interface ColumnType {
+  id: number;
+  title: string;
+  boardId: string;
+  position: number;
+}
 export type TaskType = any;
 
 export interface BoardDataType {
