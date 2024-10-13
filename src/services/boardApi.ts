@@ -47,6 +47,7 @@ export const boardApi = createApi({
       }),
       invalidatesTags: ['boards']
     })
+    // getBoardData: builder.query<>
   })
 });
 
