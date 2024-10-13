@@ -16,8 +16,6 @@ import Button from '../Common/Button';
 import {createPortal} from 'react-dom';
 import {ColumnType, IdType, TaskType} from '@/types/common.type';
 import {generateId} from '@/utils/common.utils';
-import {useSelector} from 'react-redux';
-import {RootState} from '@/store';
 
 const Board: React.FC = () => {
   const [columns, setColumns] = useState<ColumnType[]>([]);

@@ -14,7 +14,10 @@ import {usePathname, useRouter} from 'next/navigation';
 import React, {useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import Button from './Button';
-import {useEditBoardNameMutation} from '@/services/boardApi';
+import {
+  useDeleteBoardMutation,
+  useEditBoardNameMutation
+} from '@/services/boardApi';
 
 const BoardCard: React.FC<{boardData: BoardType}> = ({boardData}) => {
   const dispatch = useDispatch();
@@ -25,6 +28,7 @@ const BoardCard: React.FC<{boardData: BoardType}> = ({boardData}) => {
   const [editedName, setEditedName] = useState<string>(boardData.title);
 
   const [editBoard, {data}] = useEditBoardNameMutation();
+  const [deleteBoard] = useDeleteBoardMutation();
 
   useEffect(() => {
     if (data?.title) setEditedName(data?.title);
@@ -104,6 +108,7 @@ const BoardCard: React.FC<{boardData: BoardType}> = ({boardData}) => {
             className='size-6 text-error-dark ml-3'
             onClick={e => {
               e.stopPropagation();
+              deleteBoard(String(boardData.id));
             }}
           />
         </div>
