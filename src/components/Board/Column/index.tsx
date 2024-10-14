@@ -7,22 +7,23 @@ import {
   CheckIcon
 } from '@heroicons/react/24/outline';
 import {Tooltip} from 'react-tooltip';
-import TaskCard from './TaskCard';
+import TaskCard from '../../Common/TaskCard';
 import {SortableContext, useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
-import {IdType, TaskType} from '@/types/common.type';
-import Button from './Button';
+import {IdType} from '@/types/common.type';
+import Button from '../../Common/Button';
 import {ColumnType} from '@/types/board.type';
 import {
   useDeleteColumnMutation,
   useEditColumnTitleMutation
 } from '@/services/boardApi';
 import {useParams} from 'next/navigation';
+import {useAddNewTaskMutation} from '@/services/taskApi';
 
 interface ColumnInterface {
   column: ColumnType;
-  createTask: (columnId: IdType) => void;
-  tasks: TaskType[];
+  createTask?: (columnId: IdType) => void;
+  tasks?: TaskType[];
   columnToRename: number | null;
   setColumnToRename: (value: any) => void;
 }
@@ -35,13 +36,21 @@ const Column: React.FC<ColumnInterface> = ({
   setColumnToRename
 }) => {
   const params = useParams();
+  // console.log(tasks);
 
   const [editColumnTitle] = useEditColumnTitleMutation();
   const [deleteColumn] = useDeleteColumnMutation();
+  const [addNewTask] = useAddNewTaskMutation();
 
   const [editedName, setEditedName] = useState<string>(column.title);
 
-  const taskIds = useMemo(() => tasks.map(task => task.id), [tasks]);
+  const taskIds = useMemo(() => {
+    if (!!tasks) {
+      return tasks?.map(task => task.id);
+    } else {
+      return [];
+    }
+  }, [tasks]);
 
   const {
     isOver,
@@ -132,8 +141,8 @@ const Column: React.FC<ColumnInterface> = ({
       </div>
       {/* column tasks container */}
       <div className='flex flex-grow flex-col gap-4 overflow-x-hidden overflow-y-auto px-3'>
-        <SortableContext items={taskIds}>
-          {tasks.map(task => (
+        <SortableContext items={taskIds as number[]}>
+          {tasks?.map(task => (
             <TaskCard
               key={task.id}
               taskData={task}
@@ -147,7 +156,8 @@ const Column: React.FC<ColumnInterface> = ({
       <div className='w-full px-3'>
         <Button
           classNames='w-full flex justify-center'
-          onClick={() => createTask(column.id)}>
+          // onClick={() => createTask(column.id)}
+        >
           <>
             Add Task
             <PlusCircleIcon className='size-5 ml-4' />

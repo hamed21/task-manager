@@ -2,10 +2,10 @@ import {ColumnType} from '@/types/board.type';
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 export interface ColumnsState {
-  value: ColumnType[];
+  value: ColumnType[] | null;
 }
 
-const initialState: any = {
+const initialState: ColumnsState = {
   value: null
 };
 

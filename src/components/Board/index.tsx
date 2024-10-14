@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import Column from '../Common/Column';
+import Column from './Column';
 import TaskCard from '../Common/TaskCard';
 import {
   DndContext,
@@ -14,8 +14,6 @@ import {
 import {arrayMove, SortableContext} from '@dnd-kit/sortable';
 import Button from '../Common/Button';
 import {createPortal} from 'react-dom';
-import {IdType, TaskType} from '@/types/common.type';
-import {generateId} from '@/utils/common.utils';
 import {
   useGetBoardDataQuery,
   useUpdateColumnsOrderMutation
@@ -29,16 +27,17 @@ import {ColumnType} from '@/types/board.type';
 import {setColumns} from '@/store/columnSlice';
 import {useSelector} from 'react-redux';
 import {RootState} from '@/store';
+import {setTasks} from '@/store/taskSlice';
 
 const Board: React.FC = () => {
   const params = useParams();
   const dispatch = useDispatch();
 
   const columns = useSelector((state: RootState) => state.columns.value);
+  const tasks = useSelector((state: RootState) => state.tasks.value);
 
   const [openAddColumnModal, setOpenAddColumnModal] = useState<boolean>(false);
   const [columnToRename, setColumnToRename] = useState(null);
-  const [tasks, setTasks] = useState<TaskType[]>([]);
   const [activeColumn, setActiveColumn] = useState<any | null>(null);
   const [activeTask, setActiveTask] = useState<TaskType | null>(null);
   const [isClient, setIsClient] = useState(false);
@@ -53,6 +52,7 @@ const Board: React.FC = () => {
     if (boardData) {
       dispatch(setSelectedBoard(boardData));
       dispatch(setColumns(boardData?.columns));
+      dispatch(setTasks(boardData?.tasks));
     }
   }, [boardData]);
 
@@ -101,27 +101,27 @@ const Board: React.FC = () => {
 
     if (!isActiveTask) return;
 
-    if (isActiveTask && isOverTask) {
-      setTasks(tasks => {
-        const activeIndex = tasks.findIndex(task => task.id === active.id);
-        const overIndex = tasks.findIndex(task => task.id === over.id);
+    // if (isActiveTask && isOverTask) {
+    //   setTasks(tasks => {
+    //     const activeIndex = tasks.findIndex(task => task.id === active.id);
+    //     const overIndex = tasks.findIndex(task => task.id === over.id);
 
-        tasks[activeIndex].columnId = tasks[overIndex].columnId;
+    //     tasks[activeIndex].column = tasks[overIndex].column;
 
-        return arrayMove(tasks, activeIndex, overIndex);
-      });
-    }
+    //     return arrayMove(tasks, activeIndex, overIndex);
+    //   });
+    // }
 
     const isOverColumn = over.data.current?.type === 'Column';
 
-    if (isActiveTask && isOverColumn) {
-      setTasks(tasks => {
-        const activeIndex = tasks.findIndex(task => task.id === active.id);
+    // if (isActiveTask && isOverColumn) {
+    //   setTasks(tasks => {
+    //     const activeIndex = tasks.findIndex(task => task.id === active.id);
 
-        tasks[activeIndex].columnId = over.id;
-        return arrayMove(tasks, activeIndex, activeIndex);
-      });
-    }
+    //     tasks[activeIndex].column = Number(over.id);
+    //     return arrayMove(tasks, activeIndex, activeIndex);
+    //   });
+    // }
   };
 
   const onDragEnd = (event: DragEndEvent) => {
@@ -189,30 +189,32 @@ const Board: React.FC = () => {
   //   setColumns(newColumns);
   // };
 
-  const createTask = (columnId: IdType): void => {
-    const newTask: TaskType = {
-      id: generateId(),
-      columnId,
-      title: `Task ${tasks.length + 1}`
-    };
+  // const createTask = (columnId: IdType): void => {
+  //   const newTask: TaskType = {
+  //     id: generateId(),
+  //     columnId,
+  //     title: `Task ${tasks.length + 1}`
+  //   };
 
-    setTasks([...tasks, newTask]);
-  };
+  //   setTasks([...tasks, newTask]);
+  // };
 
-  const deleteTask = (taskId: IdType): void => {
-    const filteredTasks = tasks.filter(task => task.id !== taskId);
+  // const deleteTask = (taskId: IdType): void => {
+  //   const filteredTasks = tasks.filter(task => task.id !== taskId);
 
-    setTasks(filteredTasks);
-  };
+  //   setTasks(filteredTasks);
+  // };
 
-  const updateTaskName = (taskId: IdType, title: string): void => {
-    const updatedTasks = tasks.map(task => {
-      if (task.id !== taskId) return task;
-      return {...task, title};
-    });
+  // const updateTaskName = (taskId: IdType, title: string): void => {
+  //   const updatedTasks = tasks.map(task => {
+  //     if (task.id !== taskId) return task;
+  //     return {...task, title};
+  //   });
 
-    setTasks(updatedTasks);
-  };
+  //   setTasks(updatedTasks);
+  // };
+
+  // console.log(tasks?.filter(task => task.column === column.id));
 
   return (
     <>
@@ -237,9 +239,9 @@ const Board: React.FC = () => {
                     column={column}
                     columnToRename={columnToRename}
                     setColumnToRename={setColumnToRename}
-                    createTask={createTask}
+                    // createTask={createTask}
                     // deleteTask={deleteTask}
-                    tasks={tasks.filter(task => task.columnId === column.id)}
+                    tasks={tasks?.filter(task => task.columnId === column.id)}
                     // updateTaskName={updateTaskName}
                   />
                 ))}
@@ -261,19 +263,17 @@ const Board: React.FC = () => {
                   column={activeColumn}
                   columnToRename={columnToRename}
                   setColumnToRename={setColumnToRename}
-                  createTask={createTask}
+                  // createTask={createTask}
                   // deleteTask={deleteTask}
-                  tasks={tasks.filter(
-                    task => task.columnId === activeColumn.id
-                  )}
-                  // updateTaskName={updateTaskName}
+                  tasks={tasks?.filter(task => task.column === activeColumn.id)}
+                  // // updateTaskName={updateTaskName}
                 />
               )}
               {activeTask && (
                 <TaskCard
                   taskData={activeTask}
-                  deleteTask={deleteTask}
-                  updateTaskName={updateTaskName}
+                  // deleteTask={deleteTask}
+                  // updateTaskName={updateTaskName}
                 />
               )}
             </DragOverlay>,

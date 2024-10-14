@@ -8,12 +8,6 @@ export interface RadioButtonOptionType {
 
 export type IdType = string | number;
 
-export interface TaskType {
-  id: IdType;
-  columnId: IdType;
-  title: string;
-}
-
 export type DropdownMenuOptionType<T> = T & {
   hasEdit: boolean;
   hasDelete: boolean;

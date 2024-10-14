@@ -11,7 +11,6 @@ export interface ColumnType {
   boardId?: string;
   position: number;
 }
-export type TaskType = any;
 
 export interface BoardDataType {
   id: number;
