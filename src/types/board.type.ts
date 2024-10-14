@@ -8,7 +8,7 @@ export interface BoardType {
 export interface ColumnType {
   id: number;
   title: string;
-  boardId: string;
+  boardId?: string;
   position: number;
 }
 export type TaskType = any;

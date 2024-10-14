@@ -26,10 +26,15 @@ import {setSelectedBoard} from '@/store/boardSlice';
 import {PlusCircleIcon} from '@heroicons/react/24/outline';
 import {AddColumnModal} from './AddColumnModal';
 import {ColumnType} from '@/types/board.type';
+import {setColumns} from '@/store/columnSlice';
+import {useSelector} from 'react-redux';
+import {RootState} from '@/store';
 
 const Board: React.FC = () => {
   const params = useParams();
   const dispatch = useDispatch();
+
+  const columns = useSelector((state: RootState) => state.columns.value);
 
   const [openAddColumnModal, setOpenAddColumnModal] = useState<boolean>(false);
   const [columnToRename, setColumnToRename] = useState(null);
@@ -45,7 +50,10 @@ const Board: React.FC = () => {
   const [updateColumnsOrder] = useUpdateColumnsOrderMutation();
 
   useEffect(() => {
-    boardData && dispatch(setSelectedBoard(boardData));
+    if (boardData) {
+      dispatch(setSelectedBoard(boardData));
+      dispatch(setColumns(boardData?.columns));
+    }
   }, [boardData]);
 
   const sensors = useSensors(
@@ -150,13 +158,15 @@ const Board: React.FC = () => {
       boardData?.columns as ColumnType[],
       activeColumnIndex as number,
       overColumnIndex as number
-    ).map((column, index) => {
-      const {boardId, ...rest} = column;
-      return {...rest, position: index + 1};
-    });
+    );
+
+    dispatch(setColumns(updatedColumns));
 
     updateColumnsOrder({
-      columns: updatedColumns,
+      columns: updatedColumns.map((column, index) => {
+        const {boardId, ...rest} = column;
+        return {...rest, position: index + 1};
+      }),
       boardId: params.board as string
     });
   };
@@ -221,7 +231,7 @@ const Board: React.FC = () => {
           <div className='flex gap-4 h-full py-5'>
             <div className='flex gap-4'>
               <SortableContext items={columnIds}>
-                {boardData?.columns.map(column => (
+                {columns?.map((column: ColumnType) => (
                   <Column
                     key={column.id}
                     column={column}
