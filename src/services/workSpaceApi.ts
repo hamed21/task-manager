@@ -14,7 +14,7 @@ interface NewWorkspaceBody {
 
 export const workspaceApi = createApi({
   reducerPath: 'workspaceApi',
-  baseQuery: fetchBaseQuery({baseUrl: 'http://localhost:3000'}),
+  baseQuery: fetchBaseQuery({baseUrl: 'https://diginext-taskmgr.darkube.app'}),
   tagTypes: ['workspace'],
   endpoints: builder => ({
     getAllWorkspaces: builder.query<WorkspaceType[], void>({

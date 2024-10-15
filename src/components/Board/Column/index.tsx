@@ -148,14 +148,7 @@ const Column: React.FC<ColumnInterface> = ({
         {/* column tasks container */}
         <div className='flex flex-grow flex-col gap-4 overflow-x-hidden overflow-y-auto px-3'>
           <SortableContext items={taskIds as number[]}>
-            {tasks?.map(task => (
-              <TaskCard
-                key={task.id}
-                taskData={task}
-                // deleteTask={deleteTask}
-                // updateTaskName={updateTaskName}
-              />
-            ))}
+            {tasks?.map(task => <TaskCard key={task.id} taskData={task} />)}
           </SortableContext>
         </div>
         {/* column footer */}

@@ -10,7 +10,7 @@ export interface TaskCardType {
 export interface TaskType {
   id?: number;
   columnId?: number;
-  title: string;
+  title?: string;
   description?: string;
   dueDate?: string;
   priority?: string;

@@ -39,9 +39,9 @@ const Header = () => {
 
   return (
     <>
-      <header className='flex items-center  h-14 w-full bg-background-normal  pl-48'>
+      <header className='flex items-center  h-14 w-full bg-background-normal  '>
         <div className='w-full h-full px-7 flex justify-between items-center'>
-          {selectedBoard?.title || '-'}
+          <p>{selectedBoard?.title || ' '}</p>
           <DropdownMenu
             selectedValue={selectedWorkspace}
             options={normalizedWorkspacesData}

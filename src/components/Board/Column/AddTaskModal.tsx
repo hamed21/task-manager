@@ -21,9 +21,7 @@ const AddTaskModal: React.FC<PropsType> = ({
   const params = useParams();
 
   const [addNewTask] = useAddNewTaskMutation();
-  const {data: boardData, refetch} = useGetBoardDataQuery(
-    params.board as string
-  );
+  const {refetch} = useGetBoardDataQuery(params.board as string);
 
   const [newTaskTitle, setNewTaskTitle] = useState('');
   return (
@@ -35,8 +33,8 @@ const AddTaskModal: React.FC<PropsType> = ({
         <>
           <Button
             btnType='primaryText'
-            onClick={() => {
-              addNewTask({
+            onClick={async () => {
+              await addNewTask({
                 board: Number(params.board),
                 column: columnId,
                 title: newTaskTitle

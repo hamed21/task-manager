@@ -22,6 +22,8 @@ import {useDispatch} from 'react-redux';
 import {useSelector} from 'react-redux';
 import {RootState} from '@/store';
 import {setSelectedWorkspace} from '@/store/workspaceSlice';
+import {useRouter} from 'next/navigation';
+import {setSelectedBoard} from '@/store/boardSlice';
 
 interface DropdownMenuType {
   options: DropdownMenuOptionType<WorkspaceType>[];
@@ -30,6 +32,8 @@ interface DropdownMenuType {
 
 const DropdownMenu: React.FC<DropdownMenuType> = ({options, selectedValue}) => {
   const dispatch = useDispatch();
+  const router = useRouter();
+
   const selectedWorkspace = useSelector(
     (state: RootState) => state.workspace.value
   );
@@ -47,14 +51,7 @@ const DropdownMenu: React.FC<DropdownMenuType> = ({options, selectedValue}) => {
 
   const [deleteWorkspace, result] = useDeleteWorkspaceMutation();
   const [editWorkspace] = useEditWorkspaceMutation();
-  const [
-    addWorkspace,
-    {
-      isSuccess: addWorkspaceSuccess,
-      isError: addWorkspaceError,
-      isLoading: addWorkspaceLoading
-    }
-  ] = useAddWorkspaceMutation();
+  const [addWorkspace] = useAddWorkspaceMutation();
 
   const handleAddWorkspace = async (): Promise<void> => {
     try {
@@ -176,7 +173,11 @@ const DropdownMenu: React.FC<DropdownMenuType> = ({options, selectedValue}) => {
           {options.map(option => (
             <MenuItem key={option.id}>
               <button
-                onClick={() => dispatch(setSelectedWorkspace(option))}
+                onClick={() => {
+                  dispatch(setSelectedWorkspace(option));
+                  dispatch(setSelectedBoard(null));
+                  router.push(`/${option?.id}`);
+                }}
                 className={classNames(
                   'group flex justify-between w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-background-subtle',
                   {'bg-background-subtle': selectedValue?.id === option.id}

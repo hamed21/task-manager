@@ -6,20 +6,23 @@ import {IdType} from '@/types/common.type';
 import {TrashIcon} from '@heroicons/react/24/outline';
 import classNames from 'classnames';
 import {TaskCardType} from '@/types/task.type';
+import {useDeleteTaskMutation, useEditTaskMutation} from '@/services/taskApi';
+import {useParams} from 'next/navigation';
+import {useGetBoardDataQuery} from '@/services/boardApi';
 
 interface PropsType {
   taskData: TaskCardType;
-  deleteTask?: (taskId: IdType) => void;
-  updateTaskName?: (taskId: IdType, title: string) => void;
 }
 
-const TaskCard: React.FC<PropsType> = ({
-  taskData,
-  deleteTask,
-  updateTaskName
-}) => {
-  const [mouseIsOver, setMouseIsOver] = useState(false);
+const TaskCard: React.FC<PropsType> = ({taskData}) => {
+  const params = useParams();
+
+  const [editTask] = useEditTaskMutation();
+  const [deleteTask] = useDeleteTaskMutation();
+  const {refetch} = useGetBoardDataQuery(params.board as string);
+
   const [taskTitleIsEditing, setTaskTitleIsEditing] = useState(false);
+  const [editedTaskName, setEditedTaskName] = useState(taskData.name);
 
   const {
     isOver,
@@ -39,13 +42,7 @@ const TaskCard: React.FC<PropsType> = ({
   });
 
   const deleteIconClassNames = classNames(
-    'size-5 text-base-normalText hover:text-error-normal cursor-pointer absolute right-3 top-5 opacity-0 scale-0 transition-all duration-200 cursor-pointer',
-    {
-      'opacity-0': !mouseIsOver,
-      'opacity-100': mouseIsOver,
-      'scale-0': !mouseIsOver,
-      'scale-100': mouseIsOver
-    }
+    'size-5 text-base-normalText hover:text-error-normal cursor-pointer absolute right-3 top-5 transition-all duration-200 cursor-pointer'
   );
 
   const style = {
@@ -60,17 +57,9 @@ const TaskCard: React.FC<PropsType> = ({
     }
   );
 
-  const toggleIsEditing = (): void => {
-    setTaskTitleIsEditing(prevState => !prevState);
-  };
-
-  console.log(taskData);
-
   return (
     <div
       className={TaskCardClassNames}
-      onMouseEnter={() => setMouseIsOver(true)}
-      onMouseLeave={() => setMouseIsOver(false)}
       ref={setNodeRef}
       style={style}
       {...attributes}
@@ -79,11 +68,20 @@ const TaskCard: React.FC<PropsType> = ({
         <input
           autoFocus
           className='h-[28px] bg-base-white cursor-gra border border-gray-border rounded-md outline-none px-2 focus:border-primary-normal max-w-[200px] shadow shadow-primary-light'
-          value={taskData.name}
-          // onChange={e => updateTaskName(taskData.id, e.target.value)}
+          value={editedTaskName}
+          onChange={e => setEditedTaskName(e.target.value)}
           onBlur={() => setTaskTitleIsEditing(false)}
-          onKeyDown={e => {
+          onKeyDown={async e => {
             if (e.key === 'Enter' || e.key === 'Escape') {
+              await editTask({
+                taskBody: {
+                  column: taskData.columnId,
+                  title: editedTaskName,
+                  board: Number(params.board)
+                },
+                taskId: String(taskData.id)
+              });
+              refetch();
               setTaskTitleIsEditing(false);
             }
           }}
@@ -91,7 +89,9 @@ const TaskCard: React.FC<PropsType> = ({
       ) : (
         <p
           className='text-lg h-7 text-base-linkText  cursor-pointer max-w-[220px]'
-          onClick={toggleIsEditing}>
+          onClick={() => {
+            setTaskTitleIsEditing(true);
+          }}>
           {taskData.name}
         </p>
       )}
@@ -105,8 +105,9 @@ const TaskCard: React.FC<PropsType> = ({
         </p>
       </div>
       <TrashIcon
-        onClick={() => {
-          // deleteTask(taskData.id);
+        onClick={async () => {
+          await deleteTask(String(taskData.id));
+          refetch();
         }}
         className={deleteIconClassNames}
       />

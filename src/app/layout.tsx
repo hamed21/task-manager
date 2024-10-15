@@ -27,10 +27,10 @@ export default function RootLayout({
                      h-screen 
                      bg-background-main'>
             <Header />
-            <Sidebar />
+            {/* <Sidebar /> */}
             <main
               className='bg-background-main
-                          ml-48
+                 px-6
                           grid 
                           h-[calc(100%-56px)] 
                           overflow-y-hidden'>

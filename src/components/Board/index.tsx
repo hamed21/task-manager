@@ -29,6 +29,7 @@ import {useSelector} from 'react-redux';
 import {RootState} from '@/store';
 import {setTasks} from '@/store/taskSlice';
 import {TaskCardType} from '@/types/task.type';
+import {useEditTaskMutation} from '@/services/taskApi';
 
 const Board: React.FC = () => {
   const params = useParams();
@@ -36,6 +37,8 @@ const Board: React.FC = () => {
 
   const columns = useSelector((state: RootState) => state.columns.value);
   const tasks = useSelector((state: RootState) => state.tasks.value);
+
+  const [editTask] = useEditTaskMutation();
 
   const [openAddColumnModal, setOpenAddColumnModal] = useState<boolean>(false);
   const [columnToRename, setColumnToRename] = useState(null);
@@ -91,6 +94,8 @@ const Board: React.FC = () => {
       setActiveTask(event.active.data.current?.taskData);
   };
 
+  console.log(activeTask);
+
   const onDragOver = (event: DragOverEvent) => {
     const {active, over} = event;
 
@@ -102,27 +107,32 @@ const Board: React.FC = () => {
 
     if (!isActiveTask) return;
 
-    // if (isActiveTask && isOverTask) {
-    //   setTasks(tasks => {
-    //     const activeIndex = tasks.findIndex(task => task.id === active.id);
-    //     const overIndex = tasks.findIndex(task => task.id === over.id);
-
-    //     tasks[activeIndex].column = tasks[overIndex].column;
-
-    //     return arrayMove(tasks, activeIndex, overIndex);
-    //   });
-    // }
-
     const isOverColumn = over.data.current?.type === 'Column';
 
-    // if (isActiveTask && isOverColumn) {
-    //   setTasks(tasks => {
-    //     const activeIndex = tasks.findIndex(task => task.id === active.id);
+    if (isActiveTask && isOverColumn) {
+      const activeIndex = tasks?.findIndex(task => task.id === active.id);
 
-    //     tasks[activeIndex].column = Number(over.id);
-    //     return arrayMove(tasks, activeIndex, activeIndex);
-    //   });
-    // }
+      const x = tasks?.map(task => {
+        if (task.id === tasks[activeIndex as number].id) {
+          return {...task, columnId: over.id};
+        }
+        return task;
+      });
+      const updatedTasks = arrayMove(
+        x as TaskCardType[],
+        activeIndex as number,
+        activeIndex as number
+      );
+      console.log(over.id);
+      dispatch(setTasks(updatedTasks));
+      editTask({
+        taskBody: {
+          board: Number(params.board),
+          column: Number(over.id)
+        },
+        taskId: String(tasks?.[activeIndex as number].id)
+      });
+    }
   };
 
   const onDragEnd = (event: DragEndEvent) => {
@@ -130,23 +140,13 @@ const Board: React.FC = () => {
     setActiveTask(null);
 
     const {active, over} = event;
+
     if (!over) return;
 
     const activeColumnId = active.id;
     const overColumnId = over.id;
 
     if (activeColumnId === overColumnId) return;
-
-    // setColumns(columns => {
-    //   const activeColumnIndex = columns.findIndex(
-    //     column => column.id === activeColumnId
-    //   );
-    //   const overColumnIndex = columns.findIndex(
-    //     column => column.id === overColumnId
-    //   );
-
-    //   return arrayMove(columns, activeColumnIndex, overColumnIndex);
-    // });
 
     const activeColumnIndex = boardData?.columns.findIndex(
       column => column.id === activeColumnId
@@ -155,67 +155,24 @@ const Board: React.FC = () => {
       column => column.id === overColumnId
     );
 
-    const updatedColumns = arrayMove(
-      boardData?.columns as ColumnType[],
-      activeColumnIndex as number,
-      overColumnIndex as number
-    );
+    if (activeColumn) {
+      const updatedColumns = arrayMove(
+        boardData?.columns as ColumnType[],
+        activeColumnIndex as number,
+        overColumnIndex as number
+      );
 
-    dispatch(setColumns(updatedColumns));
+      dispatch(setColumns(updatedColumns));
 
-    updateColumnsOrder({
-      columns: updatedColumns.map((column, index) => {
-        const {boardId, ...rest} = column;
-        return {...rest, position: index + 1};
-      }),
-      boardId: params.board as string
-    });
+      updateColumnsOrder({
+        columns: updatedColumns.map((column, index) => {
+          const {boardId, ...rest} = column;
+          return {...rest, position: index + 1};
+        }),
+        boardId: params.board as string
+      });
+    }
   };
-
-  // const deleteColumn = (columnId: IdType): void => {
-  //   const filteredColumns = columns.filter(column => column.id !== columnId);
-
-  //   setColumns(filteredColumns);
-
-  //   const filteredTasks = tasks.filter(task => task.columnId !== columnId);
-  //   setTasks(filteredTasks);
-  // };
-
-  // const updateColumnName = (columnId: IdType, title: string): void => {
-  //   const newColumns = columns.map(column => {
-  //     if (column.id !== columnId) return column;
-  //     return {...column, title};
-  //   });
-
-  //   setColumns(newColumns);
-  // };
-
-  // const createTask = (columnId: IdType): void => {
-  //   const newTask: TaskType = {
-  //     id: generateId(),
-  //     columnId,
-  //     title: `Task ${tasks.length + 1}`
-  //   };
-
-  //   setTasks([...tasks, newTask]);
-  // };
-
-  // const deleteTask = (taskId: IdType): void => {
-  //   const filteredTasks = tasks.filter(task => task.id !== taskId);
-
-  //   setTasks(filteredTasks);
-  // };
-
-  // const updateTaskName = (taskId: IdType, title: string): void => {
-  //   const updatedTasks = tasks.map(task => {
-  //     if (task.id !== taskId) return task;
-  //     return {...task, title};
-  //   });
-
-  //   setTasks(updatedTasks);
-  // };
-
-  // console.log(tasks?.filter(task => task.column === column.id));
 
   return (
     <>
@@ -266,7 +223,9 @@ const Board: React.FC = () => {
                   setColumnToRename={setColumnToRename}
                   // createTask={createTask}
                   // deleteTask={deleteTask}
-                  tasks={tasks?.filter(task => task.column === activeColumn.id)}
+                  tasks={tasks?.filter(
+                    task => task.columnId === activeColumn.id
+                  )}
                   // // updateTaskName={updateTaskName}
                 />
               )}
