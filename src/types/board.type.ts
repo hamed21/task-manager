@@ -1,3 +1,5 @@
+import {TaskCardType} from './task.type';
+
 export interface BoardType {
   id: number;
   title: string;
@@ -18,5 +20,5 @@ export interface BoardDataType {
   dateCreated: string;
   workspace: number;
   columns: ColumnType[];
-  tasks: TaskType[];
+  tasks: TaskCardType[];
 }

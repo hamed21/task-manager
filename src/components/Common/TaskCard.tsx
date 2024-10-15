@@ -2,17 +2,18 @@ import React, {useState} from 'react';
 import {useDraggable} from '@dnd-kit/core';
 import {useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
-import {IdType, TaskType} from '@/types/common.type';
+import {IdType} from '@/types/common.type';
 import {TrashIcon} from '@heroicons/react/24/outline';
 import classNames from 'classnames';
+import {TaskCardType} from '@/types/task.type';
 
-interface TaskCardType {
-  taskData: TaskType;
+interface PropsType {
+  taskData: TaskCardType;
   deleteTask?: (taskId: IdType) => void;
   updateTaskName?: (taskId: IdType, title: string) => void;
 }
 
-const TaskCard: React.FC<TaskCardType> = ({
+const TaskCard: React.FC<PropsType> = ({
   taskData,
   deleteTask,
   updateTaskName
@@ -29,7 +30,7 @@ const TaskCard: React.FC<TaskCardType> = ({
     transition,
     isDragging
   } = useSortable({
-    id: taskData.id,
+    id: taskData.id as number,
     data: {
       type: 'Task',
       taskData
@@ -63,6 +64,8 @@ const TaskCard: React.FC<TaskCardType> = ({
     setTaskTitleIsEditing(prevState => !prevState);
   };
 
+  console.log(taskData);
+
   return (
     <div
       className={TaskCardClassNames}
@@ -76,7 +79,7 @@ const TaskCard: React.FC<TaskCardType> = ({
         <input
           autoFocus
           className='h-[28px] bg-base-white cursor-gra border border-gray-border rounded-md outline-none px-2 focus:border-primary-normal max-w-[200px] shadow shadow-primary-light'
-          value={taskData.title}
+          value={taskData.name}
           // onChange={e => updateTaskName(taskData.id, e.target.value)}
           onBlur={() => setTaskTitleIsEditing(false)}
           onKeyDown={e => {
@@ -89,13 +92,17 @@ const TaskCard: React.FC<TaskCardType> = ({
         <p
           className='text-lg h-7 text-base-linkText  cursor-pointer max-w-[220px]'
           onClick={toggleIsEditing}>
-          {taskData.title}
+          {taskData.name}
         </p>
       )}
-      <p className='text-base h-6 text-base-normalText'>Hamed</p>
+      <p className='text-base h-6 text-base-normalText'>
+        {taskData.assignees.length > 1 ? taskData.assignees : 'no assignees'}
+      </p>
       <div className='flex justify-between items-center h-6 text-sm'>
-        <p className='text-gray-normal'>04/03/2024</p>
-        <p className='text-gray-normal'>Estimate : 1d</p>
+        <p className='text-gray-normal'>{taskData.dueDate}</p>
+        <p className='text-gray-normal'>
+          Estimate : {taskData.timeEstimate || '-'}
+        </p>
       </div>
       <TrashIcon
         onClick={() => {

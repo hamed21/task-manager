@@ -28,6 +28,7 @@ import {setColumns} from '@/store/columnSlice';
 import {useSelector} from 'react-redux';
 import {RootState} from '@/store';
 import {setTasks} from '@/store/taskSlice';
+import {TaskCardType} from '@/types/task.type';
 
 const Board: React.FC = () => {
   const params = useParams();
@@ -39,7 +40,7 @@ const Board: React.FC = () => {
   const [openAddColumnModal, setOpenAddColumnModal] = useState<boolean>(false);
   const [columnToRename, setColumnToRename] = useState(null);
   const [activeColumn, setActiveColumn] = useState<any | null>(null);
-  const [activeTask, setActiveTask] = useState<TaskType | null>(null);
+  const [activeTask, setActiveTask] = useState<TaskCardType | null>(null);
   const [isClient, setIsClient] = useState(false);
 
   const {data: boardData, isLoading: boardIsLoading} = useGetBoardDataQuery(
