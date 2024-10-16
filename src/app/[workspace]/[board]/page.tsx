@@ -10,9 +10,7 @@ interface ParamsType {
 }
 
 const BoardPage: React.FC<ParamsType> = ({params}) => {
-  return (
-    <Board workspaceId={params.workspace[0]} boardId={params.workspace[1]} />
-  );
+  return <Board />;
 };
 
 export default BoardPage;

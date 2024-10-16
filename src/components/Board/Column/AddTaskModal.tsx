@@ -28,7 +28,7 @@ const AddTaskModal: React.FC<PropsType> = ({
     <Modal
       open={openAddTaskModal}
       onClose={() => setOpenAddTaskModal(false)}
-      title={'Enter new task name'}
+      title={'Enter new task data'}
       footer={
         <>
           <Button
@@ -50,17 +50,35 @@ const AddTaskModal: React.FC<PropsType> = ({
           </Button>
         </>
       }>
-      <Input
-        autoFocus
-        value={newTaskTitle}
-        onChange={(event): void => {
-          setNewTaskTitle(event.target.value);
-        }}
-        className={classNames(
-          'mt-3 block w-full rounded-lg border-2 bg-background-normal py-1.5 px-3 text-sm/6 text-base-normalText',
-          'focus:outline-none focus:border-primary-light focus:shadow-sm'
-        )}
-      />
+      <div className='mt-4'>
+        <label htmlFor='task-name'>Task name</label>
+        <Input
+          id='task-name'
+          autoFocus
+          value={newTaskTitle}
+          onChange={(event): void => {
+            setNewTaskTitle(event.target.value);
+          }}
+          className={classNames(
+            'mt-3 block w-full rounded-lg border-2 bg-background-normal py-1.5 px-3 text-sm/6 text-base-normalText',
+            'focus:outline-none focus:border-primary-light focus:shadow-sm'
+          )}
+        />
+
+        <label htmlFor='task-name'>Task name</label>
+        <Input
+          id='task-name'
+          autoFocus
+          value={newTaskTitle}
+          onChange={(event): void => {
+            setNewTaskTitle(event.target.value);
+          }}
+          className={classNames(
+            'mt-3 block w-full rounded-lg border-2 bg-background-normal py-1.5 px-3 text-sm/6 text-base-normalText',
+            'focus:outline-none focus:border-primary-light focus:shadow-sm'
+          )}
+        />
+      </div>
     </Modal>
   );
 };
