@@ -8,13 +8,16 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install --production
+RUN npm install
 
 # Copy the rest of the app's code to the container
 COPY . .
 
 # Build the Next.js app
 RUN npm run build
+
+# Remove dev dependencies to keep the image slim
+RUN npm prune --production
 
 # Expose the Next.js default port
 EXPOSE 3000
