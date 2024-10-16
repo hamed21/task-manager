@@ -101,7 +101,8 @@ const TaskCard: React.FC<PropsType> = ({taskData}) => {
       <div className='flex justify-between items-center h-6 text-sm'>
         <p className='text-gray-normal'>{taskData.dueDate}</p>
         <p className='text-gray-normal'>
-          Estimate : {taskData.timeEstimate || '-'}
+          Estimate :{' '}
+          {taskData.timeEstimate ? `${taskData.timeEstimate} h` : '-'}
         </p>
       </div>
       <TrashIcon

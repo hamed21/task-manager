@@ -112,18 +112,17 @@ const Board: React.FC = () => {
     if (isActiveTask && isOverColumn) {
       const activeIndex = tasks?.findIndex(task => task.id === active.id);
 
-      const x = tasks?.map(task => {
+      const movedTask = tasks?.map(task => {
         if (task.id === tasks[activeIndex as number].id) {
           return {...task, columnId: over.id};
         }
         return task;
       });
       const updatedTasks = arrayMove(
-        x as TaskCardType[],
+        movedTask as TaskCardType[],
         activeIndex as number,
         activeIndex as number
       );
-      console.log(over.id);
       dispatch(setTasks(updatedTasks));
       editTask({
         taskBody: {
