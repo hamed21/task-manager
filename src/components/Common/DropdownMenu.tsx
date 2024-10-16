@@ -170,7 +170,7 @@ const DropdownMenu: React.FC<DropdownMenuType> = ({options, selectedValue}) => {
           transition
           anchor='bottom end'
           className='w-64 mt-2 origin-top-right rounded-xl border border-gray-border bg-background-main p-1 text-sm/6 text-base-normalText transition duration-100 ease-out focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0'>
-          {options.map(option => (
+          {options.map((option, index) => (
             <MenuItem key={option.id}>
               <button
                 onClick={() => {
@@ -185,6 +185,7 @@ const DropdownMenu: React.FC<DropdownMenuType> = ({options, selectedValue}) => {
                 <p className='block whitespace-nowrap overflow-hidden  align-middle text-ellipsis'>
                   {option.title}
                 </p>
+
                 <div className='flex gap-2'>
                   {option.hasEdit && (
                     <PencilSquareIcon
@@ -196,7 +197,7 @@ const DropdownMenu: React.FC<DropdownMenuType> = ({options, selectedValue}) => {
                       }}
                     />
                   )}
-                  {option.hasDelete && (
+                  {index !== 0 && option.hasDelete && (
                     <TrashIcon
                       className={iconClasses(false)}
                       onClick={e => {
